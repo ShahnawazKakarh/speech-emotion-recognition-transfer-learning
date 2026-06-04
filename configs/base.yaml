@@ -5,7 +5,9 @@ trainer:
   max_epochs: 10
   accelerator: auto
   devices: auto
-  precision: 16-mixed
+  # 32-true works everywhere; switch to "16-mixed" (CUDA) or "bf16-mixed" (Apple Silicon
+  # on torch >=2.4) only after you've verified a fast-dev-run succeeds.
+  precision: 32-true
   gradient_clip_val: 1.0
   accumulate_grad_batches: 1
   log_every_n_steps: 20
