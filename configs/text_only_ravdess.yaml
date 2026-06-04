@@ -1,0 +1,25 @@
+defaults: [base]
+
+experiment_name: text_only_ravdess
+dataset: ravdess
+modality: text
+
+model:
+  type: text_only
+  text_encoder: roberta-base
+  freeze_encoder_layers: 0
+  dropout: 0.1
+  num_classes: 8
+
+data:
+  data_dir: data/ravdess
+  split_seed: 42
+  test_size: 0.2
+  val_size: 0.1
+  batch_size: 32
+
+trainer:
+  max_epochs: 20
+
+optimizer:
+  lr: 2.0e-5

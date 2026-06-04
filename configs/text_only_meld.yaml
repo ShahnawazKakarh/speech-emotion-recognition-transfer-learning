@@ -1,0 +1,27 @@
+defaults: [base]
+
+experiment_name: text_only_meld
+dataset: meld
+modality: text
+
+model:
+  type: text_only
+  text_encoder: roberta-base
+  freeze_encoder_layers: 0
+  dropout: 0.1
+  num_classes: 7
+
+data:
+  data_dir: data/meld
+  use_context: true
+  context_window: 2     # number of prior utterances to prepend
+  batch_size: 32
+
+trainer:
+  max_epochs: 8
+
+optimizer:
+  lr: 2.0e-5
+
+loss:
+  use_class_weights: true   # MELD is heavily imbalanced

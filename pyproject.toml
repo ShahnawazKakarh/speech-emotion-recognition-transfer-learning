@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ser-transfer-learning"
+version = "0.1.0"
+description = "Speech Emotion Recognition via Transfer Learning: text-only, audio-only, and multimodal baselines on RAVDESS / MELD / IEMOCAP"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Shahnawaz Khan", email = "qapulsesk@gmail.com" }]
+keywords = [
+    "speech-emotion-recognition",
+    "transfer-learning",
+    "nlp",
+    "wav2vec2",
+    "wavlm",
+    "roberta",
+    "multimodal-learning",
+    "pytorch-lightning",
+    "huggingface",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core ML
+    "torch>=2.1",
+    "torchaudio>=2.1",
+    "lightning>=2.2",
+    "transformers>=4.40",
+    "datasets>=2.18",
+    "accelerate>=0.30",
+    "evaluate>=0.4",
+
+    # Audio
+    "librosa>=0.10",
+    "soundfile>=0.12",
+    "openai-whisper>=20231117",
+
+    # Utilities
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "scikit-learn>=1.4",
+    "pyyaml>=6.0",
+    "tqdm>=4.66",
+    "rich>=13.7",
+    "hydra-core>=1.3",
+    "omegaconf>=2.3",
+
+    # Logging / experiment tracking
+    "tensorboard>=2.16",
+    "wandb>=0.16",
+
+    # Plotting
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+]
+
+[project.optional-dependencies]
+demo = ["gradio>=4.20"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "black>=24.3",
+    "ruff>=0.3",
+    "mypy>=1.9",
+    "pre-commit>=3.7",
+    "ipykernel>=6.29",
+    "jupyter>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning"
+Repository = "https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning"
+Author = "https://www.skakarh.com"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]  # handled by black
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
