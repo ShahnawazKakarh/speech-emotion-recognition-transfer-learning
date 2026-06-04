@@ -1,0 +1,66 @@
+name: 🐛 Bug report
+description: A behavior that doesn't match what the code/docs say should happen.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug.
+      placeholder: When I run `python -m src.train ...`, I expected X but got Y.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands and configs used.
+      placeholder: |
+        1. Cloned the repo at commit `abcd1234`
+        2. Ran `bash scripts/download_ravdess.sh`
+        3. Ran `python -m src.train --config configs/audio_only_ravdess.yaml`
+        4. Saw the error below.
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error output / traceback
+      render: shell
+      placeholder: Paste the full traceback or relevant log here.
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS 15.0 / Ubuntu 22.04 / Windows 11 (WSL2)
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: 3.10.13
+    validations:
+      required: true
+
+  - type: input
+    id: torch
+    attributes:
+      label: PyTorch / Lightning / transformers versions
+      placeholder: torch==2.4.0, lightning==2.4.0, transformers==4.45.0
+
+  - type: input
+    id: accelerator
+    attributes:
+      label: Accelerator
+      placeholder: MPS (M2 Pro) / CUDA (RTX 4090) / CPU
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Logs, screenshots, related issues, etc.

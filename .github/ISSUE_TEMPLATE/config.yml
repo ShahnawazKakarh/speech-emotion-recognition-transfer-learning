@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General questions
+    url: https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/discussions
+    about: For general questions and discussion, please use Discussions.
+  - name: 🌐 Project website
+    url: https://www.skakarh.com
+    about: More projects and writing from SK.

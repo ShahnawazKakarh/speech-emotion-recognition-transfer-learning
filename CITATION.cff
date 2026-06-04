@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software in academic work, please cite it as below."
+type: software
+title: "Speech Emotion Recognition via Transfer Learning"
+abstract: >
+  An open-source comparison of text-only (RoBERTa), audio-only (wav2vec2 / WavLM),
+  and multimodal cross-attention transfer learning approaches for Speech Emotion
+  Recognition on RAVDESS, MELD, and IEMOCAP. Implemented with PyTorch Lightning
+  and HuggingFace Transformers, with a Gradio demo.
+authors:
+  - given-names: Shahnawaz
+    family-names: Khan
+    alias: ShahnawazKakarh
+    website: "https://www.skakarh.com"
+repository-code: "https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning"
+url: "https://www.skakarh.com"
+keywords:
+  - speech emotion recognition
+  - transfer learning
+  - multimodal learning
+  - wav2vec2
+  - wavlm
+  - roberta
+  - cross-attention
+  - natural language processing
+  - pytorch lightning
+license: MIT
+version: 0.1.0
+date-released: "2026-06-04"

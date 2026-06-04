@@ -2,6 +2,7 @@
 
 > Comparing **text-only (RoBERTa)**, **audio-only (wav2vec2 / WavLM / HuBERT)**, and **multimodal fusion** transfer learning approaches for Speech Emotion Recognition on **RAVDESS**, **MELD**, and **IEMOCAP**.
 
+[![CI](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C.svg?logo=pytorch)](https://pytorch.org/)
 [![Lightning](https://img.shields.io/badge/Lightning-2.x-792EE5.svg?logo=lightning)](https://lightning.ai/)
@@ -20,8 +21,8 @@ This repository implements and benchmarks three families of approaches on three 
 
 | Approach | Encoder | What it captures | Strength |
 |---|---|---|---|
-| **Text-only** | `RoBERTa-large` on Whisper transcripts | Lexical / semantic emotion cues | Cheap, leverages NLP ecosystem |
-| **Audio-only** | `wav2vec2-large` / `WavLM-large` | Prosody, voice quality, paralinguistic cues | Captures *how* something is said |
+| **Text-only** | `RoBERTa` on Whisper transcripts | Lexical / semantic emotion cues | Cheap, leverages NLP ecosystem |
+| **Audio-only** | `wav2vec2` / `WavLM` / `HuBERT` | Prosody, voice quality, paralinguistic cues | Captures *how* something is said |
 | **Multimodal** | Audio + Text with cross-attention fusion | Both signals jointly | State-of-the-art on conversational SER |
 
 > **Why this matters for NLP:** the "NLP-only" view of SER (ASR → BERT) systematically loses sarcasm, intonation, and arousal cues. This repo demonstrates *quantitatively* where text-only fails and how multimodal fusion recovers the gap.
@@ -86,8 +87,8 @@ Implementations live in:
 | Approach | RAVDESS (8-cls) WF1 | MELD (7-cls) WF1 | IEMOCAP (4-cls) WF1 |
 |---|---|---|---|
 | Text-only — RoBERTa | – | – | ⏳ pending access |
-| Audio-only — wav2vec2-large | – | – | ⏳ pending access |
-| Audio-only — WavLM-large | – | – | ⏳ pending access |
+| Audio-only — wav2vec2 | – | – | ⏳ pending access |
+| Audio-only — WavLM | – | – | ⏳ pending access |
 | Multimodal — concat | – | – | ⏳ pending access |
 | Multimodal — cross-attention | – | – | ⏳ pending access |
 
@@ -104,37 +105,47 @@ git clone https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer
 cd speech-emotion-recognition-transfer-learning
 
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e ".[dev,demo]"
 ```
 
-### Download data
+### Try the demo immediately (no training needed)
+
+```bash
+python demo/gradio_app.py --pretrained
+# → opens http://localhost:7860 — uses a public wav2vec2 SER model
+```
+
+### Download data and train
 
 ```bash
 bash scripts/download_ravdess.sh   # ~200MB
-bash scripts/prepare_meld.sh       # ~10GB (videos + audio)
+bash scripts/prepare_meld.sh       # ~10GB (videos + audio, requires ffmpeg)
+
+# Smoke test the pipeline (1 train + 1 val + 1 test batch, ~60s)
+python -m src.train --config configs/audio_only_ravdess.yaml --fast-dev-run
+
+# Real run
+python -m src.train --config configs/audio_only_ravdess.yaml
+
+# Multimodal cross-attention on MELD
+python -m src.train --config configs/multimodal_meld.yaml
 ```
 
-### Train a model
+### Evaluate a trained checkpoint
 
 ```bash
-# Text-only on MELD
-python -m src.train --config configs/text_only_meld.yaml
-
-# Multimodal cross-attention on RAVDESS
-python -m src.train --config configs/multimodal_cross_attn_ravdess.yaml
+python -m src.evaluate \
+  --checkpoint outputs/audio_only_ravdess/best-*.ckpt \
+  --config configs/audio_only_ravdess.yaml
+# → writes metrics.json + confusion_matrix.png to outputs/.../eval/
 ```
 
-### Evaluate
+### Demo your trained checkpoint
 
 ```bash
-python -m src.evaluate --checkpoint outputs/multimodal_ravdess/best.ckpt --dataset ravdess
-```
-
-### Run the demo
-
-```bash
-python demo/gradio_app.py
-# → opens http://localhost:7860 — upload a .wav, see predicted emotion + per-class probs
+python demo/gradio_app.py \
+  --checkpoint outputs/audio_only_ravdess/best-*.ckpt \
+  --config configs/audio_only_ravdess.yaml
 ```
 
 ---
@@ -143,24 +154,20 @@ python demo/gradio_app.py
 
 ```
 speech-emotion-recognition-transfer-learning/
-├── configs/                  # YAML per experiment
+├── configs/                  # YAML per experiment (text/audio/multimodal × ravdess/meld)
 ├── src/
-│   ├── data/                 # ravdess, meld, iemocap loaders
-│   ├── models/               # text, audio, fusion encoders
+│   ├── data/                 # ravdess, meld, iemocap loaders + Lightning DataModule
+│   ├── models/               # text, audio, fusion encoders + LightningModule
 │   ├── asr/                  # Whisper transcription
+│   ├── utils/                # metrics, seeding
 │   ├── train.py              # PyTorch Lightning trainer
-│   ├── evaluate.py           # WF1, UAR, per-class F1, confusion matrices
-│   └── utils/
-├── notebooks/
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_results_analysis.ipynb
-│   └── 03_error_analysis.ipynb
+│   └── evaluate.py           # WF1, UAR, per-class F1, confusion matrices
 ├── scripts/                  # data download + experiment runners
 ├── results/                  # benchmark tables + plots
-├── demo/
-│   └── gradio_app.py
-├── tests/
-└── .github/workflows/ci.yml
+├── demo/gradio_app.py        # interactive demo
+├── tests/                    # smoke tests + data parsing
+├── notebooks/                # exploration / analysis (stubs)
+└── .github/workflows/ci.yml  # lint + tests on every push
 ```
 
 ---
@@ -179,12 +186,16 @@ A few findings highlighted for reviewers / fellow researchers:
 ## 🛣️ Roadmap
 
 - [x] Repo scaffolding + configs
-- [ ] RAVDESS loader + baselines (audio-only, text-only, multimodal)
-- [ ] MELD loader with conversational context
-- [ ] IEMOCAP loader (pending license)
-- [ ] Cross-attention fusion module
-- [ ] Gradio demo
-- [ ] HuggingFace Spaces deployment
+- [x] Data loaders (RAVDESS, MELD), IEMOCAP stub
+- [x] Text + audio encoders + concat / gated / cross-attention fusion
+- [x] PyTorch Lightning training + evaluation
+- [x] Gradio demo (pretrained + custom checkpoint modes)
+- [x] CI: lint + smoke tests on Python 3.10 / 3.11
+- [ ] Tuned RAVDESS audio-only baseline
+- [ ] RAVDESS multimodal + text-only ablations
+- [ ] MELD baselines (text-only with context, audio-only, multimodal)
+- [ ] IEMOCAP loader implementation (pending license)
+- [ ] HuggingFace Spaces deployment of the demo
 - [ ] Blog post on [skakarh.com](https://www.skakarh.com/blog/) with results writeup
 - [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2)
 
@@ -201,11 +212,13 @@ Key papers this work builds on:
 - Busso et al., *IEMOCAP: Interactive Emotional Dyadic Motion Capture Database*, LREC 2008
 - Livingstone & Russo, *The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS)*, PLOS ONE 2018
 
+If you use this work, please cite it via [`CITATION.cff`](CITATION.cff) (GitHub will generate the BibTeX for you from the sidebar).
+
 ---
 
 ## 🤝 Contributing
 
-Contributions, bug reports, and feature requests are welcome — please open an issue first to discuss substantial changes.
+Contributions, bug reports, and feature requests are welcome. Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) for development setup, code style, and the dataset/model extension guide. For substantial changes, open an issue first so we can align.
 
 ---
 
