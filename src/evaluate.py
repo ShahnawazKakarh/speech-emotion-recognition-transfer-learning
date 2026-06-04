@@ -52,7 +52,15 @@ def main() -> None:
     label_names = get_label_names(cfg["dataset"])
 
     dm = SERDataModule(cfg)
-    model = SERLightningModule.load_from_checkpoint(args.checkpoint, cfg=cfg, label_names=label_names)
+
+    # Load to CPU first to avoid PyTorch-MPS "Unaligned blit request" bug,
+    # then let Lightning's Trainer move the model to the right device for .test().
+    model = SERLightningModule.load_from_checkpoint(
+        args.checkpoint,
+        cfg=cfg,
+        label_names=label_names,
+        map_location="cpu",
+    )
 
     trainer = L.Trainer(accelerator="auto", devices=1, logger=False)
     trainer.test(model, datamodule=dm)

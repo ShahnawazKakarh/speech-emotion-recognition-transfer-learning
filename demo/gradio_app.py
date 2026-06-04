@@ -35,14 +35,22 @@ def build_local_predictor(checkpoint: str, config: str):
     else:
         label_names = [f"class_{i}" for i in range(cfg["model"]["num_classes"])]
 
+    # Load to CPU first (avoids PyTorch-MPS "Unaligned blit request" bug),
+    # then move to the best available device for inference.
     model = SERLightningModule.load_from_checkpoint(
-        checkpoint, cfg=cfg, label_names=label_names
+        checkpoint,
+        cfg=cfg,
+        label_names=label_names,
+        map_location="cpu",
     )
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+    model = model.to(device)
     model.eval()
-
-    # Device discovery — important because the checkpoint may have been trained
-    # on MPS/CUDA and Lightning restores onto that device. Inputs must match.
-    device = next(model.parameters()).device
     print(f"[demo] Model device: {device}")
 
     sample_rate = cfg["data"].get("sample_rate", 16000)
