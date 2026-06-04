@@ -8,9 +8,11 @@ model:
   type: audio_only
   audio_encoder: facebook/wav2vec2-base
   freeze_feature_extractor: true
-  freeze_encoder_layers: 0
+  # Freeze the bottom 8 of 12 transformer layers — only fine-tune the top 4.
+  # This is the standard recipe for fine-tuning SSL speech models on small datasets.
+  freeze_encoder_layers: 8
   pooling: mean
-  dropout: 0.1
+  dropout: 0.2
   num_classes: 8
 
 data:
@@ -22,8 +24,18 @@ data:
   max_audio_seconds: 5.0
 
 trainer:
-  max_epochs: 15
+  max_epochs: 30
   accumulate_grad_batches: 2
 
 optimizer:
-  lr: 1.0e-4
+  # Conservative LR — wav2vec2 fine-tuning sweet spot is 1e-5 to 5e-5.
+  # 1e-4 (the previous value) is the *pre-training* LR, which is way too high here.
+  lr: 2.0e-5
+  weight_decay: 0.01
+
+scheduler:
+  name: linear_warmup
+  warmup_ratio: 0.1
+
+loss:
+  use_class_weights: true   # Helps with calm/neutral imbalance in 8-class RAVDESS

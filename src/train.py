@@ -67,6 +67,9 @@ def main() -> None:
     parser.add_argument(
         "--skip-test", action="store_true", help="Skip the final trainer.test() pass"
     )
+    parser.add_argument(
+        "--patience", type=int, default=8, help="EarlyStopping patience (epochs without improvement)"
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -95,7 +98,7 @@ def main() -> None:
             save_last=True,
             auto_insert_metric_name=False,
         ),
-        EarlyStopping(monitor="val/wf1", mode="max", patience=4),
+        EarlyStopping(monitor="val/wf1", mode="max", patience=args.patience),
         LearningRateMonitor(logging_interval="step"),
     ]
 
@@ -124,8 +127,6 @@ def main() -> None:
         return
 
     if args.fast_dev_run:
-        # fast_dev_run disables checkpointing, so there is no "best" ckpt on disk.
-        # Test the in-memory model state instead to keep the smoke test honest.
         trainer.test(model, datamodule=dm)
     else:
         trainer.test(model, datamodule=dm, ckpt_path="best")
