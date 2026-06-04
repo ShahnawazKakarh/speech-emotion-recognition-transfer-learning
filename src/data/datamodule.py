@@ -41,28 +41,30 @@ class SERDataModule(L.LightningDataModule):
             n = len(full)
             indices = np.arange(n)
             # Stratified split by actor would be ideal; here we use a simple seeded split.
+            test_size = self.data_cfg.get("test_size", 0.2)
+            val_size = self.data_cfg.get("val_size", 0.1)
+            split_seed = self.data_cfg.get("split_seed", 42)
+
             train_val, test = train_test_split(
-                indices,
-                test_size=self.data_cfg.get("test_size", 0.2),
-                random_state=self.data_cfg.get("split_seed", 42),
+                indices, test_size=test_size, random_state=split_seed
             )
             train, val = train_test_split(
                 train_val,
-                test_size=self.data_cfg.get("val_size", 0.1) / (1 - self.data_cfg.get("test_size", 0.2)),
-                random_state=self.data_cfg.get("split_seed", 42),
+                test_size=val_size / (1 - test_size),
+                random_state=split_seed,
             )
             self.train_ds = Subset(full, train.tolist())
             self.val_ds = Subset(full, val.tolist())
             self.test_ds = Subset(full, test.tolist())
 
         elif self.dataset_name == "meld":
-            common = dict(
-                data_dir=self.data_cfg["data_dir"],
-                use_context=self.data_cfg.get("use_context", False),
-                context_window=self.data_cfg.get("context_window", 2),
-                sample_rate=sr,
-                max_audio_seconds=max_sec,
-            )
+            common = {
+                "data_dir": self.data_cfg["data_dir"],
+                "use_context": self.data_cfg.get("use_context", False),
+                "context_window": self.data_cfg.get("context_window", 2),
+                "sample_rate": sr,
+                "max_audio_seconds": max_sec,
+            }
             self.train_ds = MELDDataset(split="train", **common)
             self.val_ds = MELDDataset(split="dev", **common)
             self.test_ds = MELDDataset(split="test", **common)
