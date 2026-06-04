@@ -64,6 +64,9 @@ def main() -> None:
     parser.add_argument("--max-epochs", type=int, default=None, help="Override max_epochs")
     parser.add_argument("--fast-dev-run", action="store_true", help="Smoke test with 1 batch")
     parser.add_argument("--wandb", action="store_true", help="Force-enable W&B logging")
+    parser.add_argument(
+        "--skip-test", action="store_true", help="Skip the final trainer.test() pass"
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -116,7 +119,16 @@ def main() -> None:
     )
 
     trainer.fit(model, datamodule=dm)
-    trainer.test(model, datamodule=dm, ckpt_path="best")
+
+    if args.skip_test:
+        return
+
+    if args.fast_dev_run:
+        # fast_dev_run disables checkpointing, so there is no "best" ckpt on disk.
+        # Test the in-memory model state instead to keep the smoke test honest.
+        trainer.test(model, datamodule=dm)
+    else:
+        trainer.test(model, datamodule=dm, ckpt_path="best")
 
 
 if __name__ == "__main__":
