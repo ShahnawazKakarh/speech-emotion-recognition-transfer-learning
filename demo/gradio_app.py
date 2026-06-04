@@ -40,6 +40,11 @@ def build_local_predictor(checkpoint: str, config: str):
     )
     model.eval()
 
+    # Device discovery — important because the checkpoint may have been trained
+    # on MPS/CUDA and Lightning restores onto that device. Inputs must match.
+    device = next(model.parameters()).device
+    print(f"[demo] Model device: {device}")
+
     sample_rate = cfg["data"].get("sample_rate", 16000)
     max_sec = cfg["data"].get("max_audio_seconds", 8.0)
     max_samples = int(sample_rate * max_sec)
@@ -75,7 +80,7 @@ def build_local_predictor(checkpoint: str, config: str):
         text = transcriber.transcribe(audio) if transcriber else ""
 
         batch = {
-            "audio": torch.from_numpy(audio).unsqueeze(0).float(),
+            "audio": torch.from_numpy(audio).unsqueeze(0).float().to(device),
             "text": [text],
         }
         with torch.no_grad():
@@ -133,7 +138,7 @@ def main() -> None:
     with gr.Blocks(title="Speech Emotion Recognition — Transfer Learning") as app:
         gr.Markdown(
             "# 🎙️ Speech Emotion Recognition\n"
-            "Upload a `.wav` or record audio to predict the speaker's emotion.\n\n"
+            "Upload a `.wav` or `.mp3`, or record from your mic, to predict the speaker's emotion.\n\n"
             "Built with transfer learning over wav2vec2 / WavLM + RoBERTa. "
             "See the [repo](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning) "
             "for training details."
