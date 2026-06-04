@@ -82,17 +82,32 @@ Implementations live in:
 
 ## 📈 Results
 
-> 🚧 Benchmarks will be populated as experiments complete. Metrics: **Weighted F1** (WF1) and **Unweighted F1 / UAR** (UF1).
+Metrics: **Weighted F1 (WF1)**, **Unweighted F1 / UAR (UF1)**.
 
-| Approach | RAVDESS (8-cls) WF1 | MELD (7-cls) WF1 | IEMOCAP (4-cls) WF1 |
+### RAVDESS (8-class, random 70/10/20 split)
+
+| Approach | Encoder | WF1 | UF1 | Accuracy |
+|---|---|---|---|---|
+| **Audio-only** | wav2vec2-base | **0.796** | **0.784** | **0.795** |
+| Text-only | RoBERTa-base | – | – | – |
+| Audio-only | WavLM-base | – | – | – |
+| Multimodal (cross-attn) | RoBERTa + wav2vec2 | – | – | – |
+
+> ⚠️ Current split is random (same actor in train/test) — a speaker-independent split is in the roadmap and will give the honest published-style number (expect ~5-10pp lower).
+
+### MELD (7-class, official splits)
+
+| Approach | Encoder | WF1 | UF1 |
 |---|---|---|---|
-| Text-only — RoBERTa | – | – | ⏳ pending access |
-| Audio-only — wav2vec2 | – | – | ⏳ pending access |
-| Audio-only — WavLM | – | – | ⏳ pending access |
-| Multimodal — concat | – | – | ⏳ pending access |
-| Multimodal — cross-attention | – | – | ⏳ pending access |
+| Text-only (context=2) | RoBERTa-base | – | – |
+| Audio-only | WavLM-base | – | – |
+| Multimodal (cross-attn) | RoBERTa + WavLM | – | – |
 
-Reproduce with: `bash scripts/run_all_experiments.sh`. Full results, per-class F1, and confusion matrices live in [`results/results.md`](results/results.md).
+### IEMOCAP (4-class)
+
+⏳ Pending dataset access — loader stub at `src/data/iemocap.py`.
+
+Full per-class breakdowns, confusion matrices, and training notes live in [`results/results.md`](results/results.md).
 
 ---
 
@@ -180,6 +195,7 @@ A few findings highlighted for reviewers / fellow researchers:
 - **MELD's class imbalance dominates results**: ~48% neutral utterances make WF1 misleading; we report UF1 alongside and include confusion matrices.
 - **Cross-attention > concat fusion** consistently on MELD (conversational context helps text branch attend to acoustic prosody cues at turn boundaries).
 - **Whisper transcription quality matters**: `whisper-large-v3` vs `whisper-base` changes downstream text-only F1 by 3–5 points on MELD.
+- **Hyperparameter sensitivity in SSL fine-tuning**: an early run with LR=1e-4 (the pre-training LR) diverged and unlearned representations; LR=2e-5 with 8/12 encoder layers frozen reached 0.80 WF1. Detailed write-up in `results/results.md`.
 
 ---
 
@@ -191,8 +207,9 @@ A few findings highlighted for reviewers / fellow researchers:
 - [x] PyTorch Lightning training + evaluation
 - [x] Gradio demo (pretrained + custom checkpoint modes)
 - [x] CI: lint + smoke tests on Python 3.10 / 3.11
-- [ ] Tuned RAVDESS audio-only baseline
+- [x] **RAVDESS audio-only baseline — WF1 0.796**
 - [ ] RAVDESS multimodal + text-only ablations
+- [ ] Speaker-independent split for honest RAVDESS numbers
 - [ ] MELD baselines (text-only with context, audio-only, multimodal)
 - [ ] IEMOCAP loader implementation (pending license)
 - [ ] HuggingFace Spaces deployment of the demo
