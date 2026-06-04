@@ -235,5 +235,5 @@ MIT © [Shahnawaz Khan](https://github.com/ShahnawazKakarh)
 | 🌐 **Website** | [www.skakarh.com](https://www.skakarh.com) |
 | ✍️ **Blog** | [skakarh.com/blog](https://www.skakarh.com/blog/) |
 | 🛠️ **Services** | [skakarh.com/services](https://www.skakarh.com/services/) |
-| 💼 **LinkedIn** | [linkedin.com/in/shahnawazkakarh](https://www.linkedin.com/in/shahnawazkakarh) |
+| 💼 **LinkedIn** | [linkedin.com/in/skakarh](https://www.linkedin.com/in/skakarh) |
 | 📦 **More projects** | [github.com/ShahnawazKakarh](https://github.com/ShahnawazKakarh) |
