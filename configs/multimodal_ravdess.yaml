@@ -11,7 +11,12 @@ model:
   fusion: cross_attention   # one of: concat, gated, cross_attention
   fusion_hidden: 512
   num_attention_heads: 8
+  # Same tuning lessons as audio_only_ravdess.yaml:
+  # freeze CNN front-end, freeze 8/12 audio transformer layers, lower LR.
+  # For RoBERTa: freeze bottom 4 of 12 layers — still gives capacity but
+  # prevents the small fusion gradient from corrupting low-level features.
   freeze_feature_extractor: true
+  freeze_encoder_layers: 8     # applied to audio encoder
   dropout: 0.2
   num_classes: 8
 
@@ -22,11 +27,19 @@ data:
   val_size: 0.1
   batch_size: 8
   max_audio_seconds: 5.0
-  max_text_tokens: 64
+  max_text_tokens: 32           # RAVDESS sentences are tiny — 32 is plenty
 
 trainer:
-  max_epochs: 20
+  max_epochs: 30
   accumulate_grad_batches: 2
 
 optimizer:
-  lr: 5.0e-5
+  lr: 2.0e-5
+  weight_decay: 0.01
+
+scheduler:
+  name: linear_warmup
+  warmup_ratio: 0.1
+
+loss:
+  use_class_weights: true
