@@ -5,6 +5,16 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+### Added — HuggingFace Spaces live demo 🎉
+- **Live deployment**: [huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition) is now public, running `superb/wav2vec2-base-superb-er` on a free CPU tier.
+- New `🤗 Open in Spaces` badge in the main README.
+
+### Fixed — HuggingFace Spaces deployment
+- Pinned `huggingface_hub<1.0` in `space/requirements.txt` so that `HfFolder` (removed in `huggingface_hub` v1.0 but still imported by older Gradio) remains available.
+- Explicitly declared `torch>=2.0,<3.0` and `torchaudio` in `space/requirements.txt` after the HF Spaces base image stopped pre-installing them for this Gradio version.
+- Replaced `gr.Label(num_top_classes=5)` with `gr.Markdown` rendering manual probability bars to sidestep `gradio_client.utils.get_type` schema introspection.
+- Added a defensive monkeypatch in `space/app.py` that wraps `gradio_client.utils.get_type` and `_json_schema_to_python_type` to handle bool schemas gracefully — fully eliminates the well-known `TypeError: argument of type 'bool' is not iterable` issue from `/api/info` regardless of Gradio version.
+
 ### Added — HuggingFace Spaces scaffold
 - New `space/` directory with a ready-to-deploy Gradio app for HuggingFace Spaces (`space/app.py`), Space frontmatter README (`space/README.md`), Space `requirements.txt`, and a step-by-step deploy guide (`space/README_DEPLOY.md`).
 - Default app runs `superb/wav2vec2-base-superb-er` for instant inference; doc explains how to swap in a custom-trained checkpoint via HF Model Hub.
