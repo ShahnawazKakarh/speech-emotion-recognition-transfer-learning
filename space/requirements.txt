@@ -1,6 +1,11 @@
 # HF Spaces uses pre-installed PyTorch + Gradio in its base image,
 # so we only declare app-specific extras here.
-transformers>=4.40
+#
+# Pin huggingface_hub < 1.0 because Gradio still imports HfFolder
+# which was removed in huggingface_hub v1.0.0.
+# See: https://github.com/huggingface/huggingface_hub/releases/tag/v1.0.0
+huggingface_hub>=0.23,<1.0
+transformers>=4.40,<5.0
 soundfile>=0.12
 numpy>=1.26
 librosa>=0.10
