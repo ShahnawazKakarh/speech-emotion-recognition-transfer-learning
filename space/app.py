@@ -81,6 +81,7 @@ with gr.Blocks(title="Speech Emotion Recognition", theme=gr.themes.Soft()) as ap
 
 
 if __name__ == "__main__":
-    # show_api=False disables the /api/info endpoint, which has a known
-    # 'bool' schema introspection bug in Gradio 5.x that floods logs.
-    app.launch(show_api=False)
+    # NOTE: do NOT set show_api=False — that breaks the Gradio frontend's
+    # ability to wire up event handlers. The api_info /api/info noise in the
+    # logs is cosmetic and doesn't affect the UI.
+    app.launch()
