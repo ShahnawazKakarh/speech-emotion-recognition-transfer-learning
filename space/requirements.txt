@@ -1,0 +1,6 @@
+# HF Spaces uses pre-installed PyTorch + Gradio in its base image,
+# so we only declare app-specific extras here.
+transformers>=4.40
+soundfile>=0.12
+numpy>=1.26
+librosa>=0.10

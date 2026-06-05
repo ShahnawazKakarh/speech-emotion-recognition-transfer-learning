@@ -143,6 +143,8 @@ python demo/gradio_app.py --pretrained
 # → opens http://localhost:7860 — uses a public wav2vec2 SER model
 ```
 
+> 🌐 **Live web demo**: a deployable HuggingFace Spaces scaffold lives at [`space/`](space/). See [`space/README_DEPLOY.md`](space/README_DEPLOY.md) for the 15-minute deploy guide.
+
 ### Download data and train
 
 ```bash
@@ -224,9 +226,10 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 - [x] CI: lint + smoke tests on Python 3.10 / 3.11
 - [x] **RAVDESS random-split baselines** (text-only, audio-only, multimodal — multimodal WF1 0.858)
 - [x] **RAVDESS speaker-independent baselines** (the publishable numbers — multimodal WF1 0.728)
+- [x] **HuggingFace Spaces scaffold** ([`space/`](space/) — follow [`space/README_DEPLOY.md`](space/README_DEPLOY.md) to deploy)
 - [ ] MELD baselines (text-only with context, audio-only, multimodal)
 - [ ] IEMOCAP loader implementation (pending USC SAIL license)
-- [ ] HuggingFace Spaces deployment of the demo
+- [ ] HuggingFace Spaces deployment of the demo — *push the [`space/`](space/) scaffold to your HF Space*
 - [ ] Blog post on [skakarh.com](https://www.skakarh.com/blog/) with results writeup
 - [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2) — future research phase
 

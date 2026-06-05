@@ -5,6 +5,10 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+### Added — HuggingFace Spaces scaffold
+- New `space/` directory with a ready-to-deploy Gradio app for HuggingFace Spaces (`space/app.py`), Space frontmatter README (`space/README.md`), Space `requirements.txt`, and a step-by-step deploy guide (`space/README_DEPLOY.md`).
+- Default app runs `superb/wav2vec2-base-superb-er` for instant inference; doc explains how to swap in a custom-trained checkpoint via HF Model Hub.
+
 ### Added — RAVDESS speaker-independent baselines (the publishable numbers)
 - **Multimodal cross-attention SI** (test = actors 21-24): Test WF1 **0.728**, UF1 **0.731**, Accuracy **0.729**. Beats audio-only SI by **+6.9 pp WF1** (larger margin than on the random split — multimodal generalizes to unseen speakers better than audio alone).
 - **Audio-only wav2vec2-base SI**: Test WF1 **0.659**, UF1 **0.631**, Accuracy **0.667**.
