@@ -41,3 +41,47 @@ def test_meld_label_coverage():
     # MELD canonical 7-class set
     expected = {"neutral", "joy", "sadness", "anger", "surprise", "fear", "disgust"}
     assert set(MELD_EMOTIONS) == expected
+
+
+def test_speaker_independent_split_disjoint():
+    """Speaker-independent split: no actor appears in more than one of train/val/test."""
+    from src.data.datamodule import SERDataModule
+    from src.data.ravdess import RAVDESSDataset
+
+    # Build a fake dataset with synthetic filenames so we don't need real audio
+    class FakeFullDS:
+        files = [
+            # 4 wavs per actor for actors 1..24
+            Path(f"03-01-{e:02d}-01-01-01-{a:02d}.wav")
+            for a in range(1, 25)
+            for e in range(1, 5)
+        ]
+
+    cfg = {
+        "dataset": "ravdess",
+        "data": {
+            "data_dir": "data/ravdess",  # unused — overridden by fake
+            "batch_size": 8,
+            "split_strategy": "speaker_independent",
+            "test_actors": [21, 22, 23, 24],
+            "val_actors": [19, 20],
+        },
+    }
+    dm = SERDataModule(cfg)
+    train_idx, val_idx, test_idx = dm._speaker_independent_split(FakeFullDS())
+
+    def actors_in(indices):
+        return {
+            int(RAVDESSDataset._parse_filename(FakeFullDS.files[i])["actor"]) for i in indices
+        }
+
+    train_actors = actors_in(train_idx)
+    val_actors = actors_in(val_idx)
+    test_actors = actors_in(test_idx)
+
+    assert train_actors & val_actors == set(), "train and val actors overlap"
+    assert train_actors & test_actors == set(), "train and test actors overlap"
+    assert val_actors & test_actors == set(), "val and test actors overlap"
+    assert test_actors == {21, 22, 23, 24}
+    assert val_actors == {19, 20}
+    assert train_actors == set(range(1, 19))
