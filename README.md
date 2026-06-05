@@ -227,10 +227,10 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 - [x] CI: lint + smoke tests on Python 3.10 / 3.11
 - [x] **RAVDESS random-split baselines** (text-only, audio-only, multimodal — multimodal WF1 0.858)
 - [x] **RAVDESS speaker-independent baselines** (the publishable numbers — multimodal WF1 0.728)
-- [x] **HuggingFace Spaces scaffold** ([`space/`](space/) — follow [`space/README_DEPLOY.md`](space/README_DEPLOY.md) to deploy)
+- [x] **HuggingFace Spaces scaffold** ([`space/`](space/) — see [`space/README_DEPLOY.md`](space/README_DEPLOY.md))
+- [x] **HuggingFace Spaces live deployment** — [🤗 huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
 - [ ] MELD baselines (text-only with context, audio-only, multimodal)
 - [ ] IEMOCAP loader implementation (pending USC SAIL license)
-- [ ] HuggingFace Spaces deployment of the demo — *push the [`space/`](space/) scaffold to your HF Space*
 - [ ] Blog post on [skakarh.com](https://www.skakarh.com/blog/) with results writeup
 - [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2) — future research phase
 
