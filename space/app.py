@@ -25,9 +25,15 @@ def get_pipeline():
     return _pipe
 
 
+def _bar(prob: float, width: int = 30) -> str:
+    """Render a horizontal bar with █ blocks for a probability in [0,1]."""
+    n = max(0, min(width, int(round(prob * width))))
+    return "█" * n + "░" * (width - n)
+
+
 def predict(audio_input):
     if audio_input is None:
-        return {}, "Upload audio or record from your mic, then click Predict."
+        return "Upload audio or record from your mic, then click **Predict**."
     sr, audio = audio_input
     if audio.dtype != np.float32:
         audio = audio.astype(np.float32) / np.iinfo(audio.dtype).max
@@ -37,12 +43,26 @@ def predict(audio_input):
     tmp = "/tmp/_serdemo.wav"
     sf.write(tmp, audio, sr)
     results = get_pipeline()(tmp, top_k=5)
-    probs = {r["label"]: float(r["score"]) for r in results}
-    note = (
-        f"Inference on `{MODEL_ID}`. "
-        "For custom-trained RoBERTa + wav2vec2 cross-attention models, see the GitHub repo."
+
+    # Format results as a Markdown table (avoids gr.Label schema introspection bug)
+    lines = [
+        "### 🎯 Predicted emotion",
+        "",
+        "| Emotion | Confidence | |",
+        "|---|---|---|",
+    ]
+    for r in results:
+        pct = f"{r['score'] * 100:5.1f}%"
+        lines.append(f"| **{r['label']}** | {pct} | `{_bar(r['score'])}` |")
+    lines.extend(
+        [
+            "",
+            f"_Model: [`{MODEL_ID}`](https://huggingface.co/{MODEL_ID})._ "
+            "For custom-trained RoBERTa + wav2vec2 cross-attention models, "
+            "see the [GitHub repo](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning).",
+        ]
     )
-    return probs, note
+    return "\n".join(lines)
 
 
 with gr.Blocks(title="Speech Emotion Recognition", theme=gr.themes.Soft()) as app:
@@ -67,10 +87,9 @@ with gr.Blocks(title="Speech Emotion Recognition", theme=gr.themes.Soft()) as ap
             )
             btn = gr.Button("🔍 Predict", variant="primary")
         with gr.Column():
-            label_out = gr.Label(label="Predicted emotion", num_top_classes=5)
-            note_out = gr.Markdown()
+            result_md = gr.Markdown("_Predictions will appear here._")
 
-    btn.click(predict, inputs=audio, outputs=[label_out, note_out])
+    btn.click(predict, inputs=audio, outputs=result_md)
 
     gr.Markdown(
         """
@@ -81,7 +100,4 @@ with gr.Blocks(title="Speech Emotion Recognition", theme=gr.themes.Soft()) as ap
 
 
 if __name__ == "__main__":
-    # NOTE: do NOT set show_api=False — that breaks the Gradio frontend's
-    # ability to wire up event handlers. The api_info /api/info noise in the
-    # logs is cosmetic and doesn't affect the UI.
-    app.launch()
+    app.launch(server_name="0.0.0.0", server_port=7860)
