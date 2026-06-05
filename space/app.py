@@ -6,15 +6,44 @@ boots in under a minute. To switch to a custom-trained checkpoint, see the
 """
 from __future__ import annotations
 
-import gradio as gr
-import numpy as np
-import soundfile as sf
-from transformers import pipeline
+# ---------------------------------------------------------------------------
+# Workaround for known gradio_client bug:
+#   TypeError: argument of type 'bool' is not iterable
+#   in gradio_client.utils.get_type when schema is True/False
+# This monkeypatch MUST run BEFORE `import gradio`.
+# ---------------------------------------------------------------------------
+import gradio_client.utils as _gc_utils  # noqa: E402
 
-# Pre-trained SER model from the SUPERB benchmark
+_original_get_type = _gc_utils.get_type
+
+
+def _safe_get_type(schema):
+    if not isinstance(schema, dict):
+        return "Any"
+    return _original_get_type(schema)
+
+
+_gc_utils.get_type = _safe_get_type
+
+_original_json_schema_to_python_type = _gc_utils._json_schema_to_python_type
+
+
+def _safe_json_schema_to_python_type(schema, defs=None):
+    if not isinstance(schema, dict):
+        return "Any"
+    return _original_json_schema_to_python_type(schema, defs)
+
+
+_gc_utils._json_schema_to_python_type = _safe_json_schema_to_python_type
+# ---------------------------------------------------------------------------
+
+import gradio as gr  # noqa: E402
+import numpy as np  # noqa: E402
+import soundfile as sf  # noqa: E402
+from transformers import pipeline  # noqa: E402
+
 MODEL_ID = "superb/wav2vec2-base-superb-er"
 
-# Lazy-init so the Space boots fast and the model loads on the first request
 _pipe = None
 
 
@@ -26,7 +55,6 @@ def get_pipeline():
 
 
 def _bar(prob: float, width: int = 30) -> str:
-    """Render a horizontal bar with █ blocks for a probability in [0,1]."""
     n = max(0, min(width, int(round(prob * width))))
     return "█" * n + "░" * (width - n)
 
@@ -44,7 +72,6 @@ def predict(audio_input):
     sf.write(tmp, audio, sr)
     results = get_pipeline()(tmp, top_k=5)
 
-    # Format results as a Markdown table (avoids gr.Label schema introspection bug)
     lines = [
         "### 🎯 Predicted emotion",
         "",
