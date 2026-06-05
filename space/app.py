@@ -66,11 +66,6 @@ with gr.Blocks(title="Speech Emotion Recognition", theme=gr.themes.Soft()) as ap
                 type="numpy",
             )
             btn = gr.Button("🔍 Predict", variant="primary")
-            gr.Examples(
-                examples=[],  # add public-license sample clips here later
-                inputs=audio,
-                label="Try a sample (none configured yet)",
-            )
         with gr.Column():
             label_out = gr.Label(label="Predicted emotion", num_top_classes=5)
             note_out = gr.Markdown()
@@ -86,4 +81,6 @@ with gr.Blocks(title="Speech Emotion Recognition", theme=gr.themes.Soft()) as ap
 
 
 if __name__ == "__main__":
-    app.launch()
+    # show_api=False disables the /api/info endpoint, which has a known
+    # 'bool' schema introspection bug in Gradio 5.x that floods logs.
+    app.launch(show_api=False)
