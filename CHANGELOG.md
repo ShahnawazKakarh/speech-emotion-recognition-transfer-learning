@@ -5,10 +5,22 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
-### Added — RAVDESS baselines complete
-- **Multimodal cross-attention (RoBERTa + wav2vec2)**: Test WF1 **0.858**, UF1 **0.851**, Accuracy **0.858**. Beats audio-only by +6.2 pp WF1; gains concentrate on previously-weakest classes (neutral +10.2, sad +11.0, disgust +11.6).
+### Added — RAVDESS speaker-independent baselines (the publishable numbers)
+- **Multimodal cross-attention SI** (test = actors 21-24): Test WF1 **0.728**, UF1 **0.731**, Accuracy **0.729**. Beats audio-only SI by **+6.9 pp WF1** (larger margin than on the random split — multimodal generalizes to unseen speakers better than audio alone).
+- **Audio-only wav2vec2-base SI**: Test WF1 **0.659**, UF1 **0.631**, Accuracy **0.667**.
+- **Text-only RoBERTa-base SI**: Test WF1 **0.031** — still at chance, as expected. Model collapsed to predicting `calm` for every input.
+- **Key finding**: multimodal F1 on the *neutral* class jumped from 0.21 (audio-only) to 0.78 (+57 pp) on unseen speakers — the text branch acts as a strong disambiguator even though it's at chance overall.
+- New `split_strategy: speaker_independent` option in `SERDataModule` with configurable actor lists. Three new configs: `*_ravdess_si.yaml` for text/audio/multimodal.
+- New test `test_speaker_independent_split_disjoint` verifies no actor leaks across train/val/test.
+
+### Added — README polish
+- Updated LinkedIn URL to `linkedin.com/in/skakarh`.
+- Added `skakarh.com/products` link in the SK footer.
+
+### Added — RAVDESS random-split baselines (earlier)
+- **Multimodal cross-attention (RoBERTa + wav2vec2)**: Test WF1 **0.858**, UF1 **0.851**, Accuracy **0.858**. Beats audio-only by +6.2 pp WF1.
 - **Audio-only wav2vec2-base**: Test WF1 **0.796**, UF1 **0.784**, Accuracy **0.795**.
-- **Text-only RoBERTa-base** (deliberate ablation): Test WF1 **0.053**, near chance — confirms text-only fails on RAVDESS's 2-fixed-sentence setup, demonstrating *why* multimodal SER matters.
+- **Text-only RoBERTa-base** (deliberate ablation): Test WF1 **0.053**, near chance — confirms text-only fails on RAVDESS's 2-fixed-sentence setup.
 
 ### Fixed
 - MPS "Unaligned blit request" bug when loading RoBERTa checkpoints via `load_from_checkpoint`. Now load to CPU first with `map_location="cpu"`, then let Lightning move to MPS during `.fit()` / `.test()`. Affects `src/evaluate.py` and `demo/gradio_app.py`.

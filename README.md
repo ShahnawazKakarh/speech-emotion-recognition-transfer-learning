@@ -25,23 +25,39 @@ This repository implements and benchmarks three families of approaches on three 
 | **Audio-only** | `wav2vec2` / `WavLM` / `HuBERT` | Prosody, voice quality, paralinguistic cues | Captures *how* something is said |
 | **Multimodal** | Audio + Text with cross-attention fusion | Both signals jointly | State-of-the-art on conversational SER |
 
-> **Why this matters for NLP:** the "NLP-only" view of SER (ASR → BERT) systematically loses sarcasm, intonation, and arousal cues. This repo demonstrates *quantitatively* where text-only fails and how multimodal fusion recovers — and even *exceeds* — audio-only performance.
+> **Why this matters for NLP:** the "NLP-only" view of SER (ASR → BERT) systematically loses sarcasm, intonation, and arousal cues. This repo demonstrates *quantitatively* where text-only fails and how multimodal fusion recovers — and even *exceeds* — audio-only performance, both with random splits and with speaker-independent (publishable) splits.
 
 ---
 
 ## 📈 Results
 
-### RAVDESS (8-class, random 70/10/20 split)
+### RAVDESS — speaker-independent split (publishable, honest numbers)
+
+Test = actors 21–24 (4 actors, 240 samples). Val = actors 19, 20. Train = actors 1–18. **These are the numbers to report.**
 
 | Approach | Encoder | WF1 | UF1 | Accuracy |
 |---|---|---|---|---|
-| **Multimodal (cross-attn)** | RoBERTa + wav2vec2 | **0.858** | **0.851** | **0.858** |
+| **Multimodal (cross-attn)** | RoBERTa + wav2vec2 | **0.728** | **0.731** | **0.729** |
+| Audio-only | wav2vec2-base | 0.659 | 0.631 | 0.667 |
+| Text-only (ablation) | RoBERTa-base | 0.031 | 0.029 | 0.133 |
+
+**Headline findings**:
+
+- **Multimodal beats audio-only by +6.9 pp WF1** on the speaker-independent split, *larger* than the +6.2 pp gain on the random split. Cross-attention fusion generalizes to unseen speakers better than audio alone.
+- **Multimodal rescues the *neutral* class** spectacularly: audio-only collapses to F1=0.21 (recall 0.125 — barely identifies neutral utterances from new actors), while multimodal reaches F1=0.78 (+57 pp).
+- **Text-only remains at chance** even with the proper split — confirming the deliberate ablation: pure-NLP SER fails on acted, fixed-sentence datasets regardless of split strategy.
+
+### RAVDESS — random split (for reference, inflated by speaker leakage)
+
+| Approach | Encoder | WF1 | UF1 | Accuracy |
+|---|---|---|---|---|
+| Multimodal (cross-attn) | RoBERTa + wav2vec2 | 0.858 | 0.851 | 0.858 |
 | Audio-only | wav2vec2-base | 0.796 | 0.784 | 0.795 |
 | Text-only (ablation) | RoBERTa-base | 0.053 | 0.053 | 0.132 |
 
-**Key finding**: multimodal cross-attention beats audio-only by **+6.2 pp WF1**, with the gains concentrated on the previously-weakest classes — *neutral* (+10.2 pp), *sad* (+11.0 pp), *disgust* (+11.6 pp). The text branch is at chance on its own (0.053), yet still contributes useful regularization signal when fused with audio. Full per-class breakdown and the LR-divergence postmortem in [`results/results.md`](results/results.md).
+> The ~13 pp drop from random → speaker-independent is the **speaker-leakage premium** — a useful reference for interpreting SER papers that report random-split numbers.
 
-> ⚠️ Current split is random (same actor in train/test) — a speaker-independent split is in the roadmap and will give the honest published-style numbers (expect ~5–10 pp lower).
+Full per-class breakdown, confusion matrices, and the LR-divergence postmortem in [`results/results.md`](results/results.md).
 
 ### MELD (7-class, official splits)
 
@@ -53,7 +69,7 @@ This repository implements and benchmarks three families of approaches on three 
 
 ### IEMOCAP (4-class)
 
-⏳ Pending dataset access — loader stub at `src/data/iemocap.py`.
+⏳ Pending USC SAIL license. Loader stub at `src/data/iemocap.py`. **Unofficial HF/Kaggle copies are not used — license violation risk.**
 
 ---
 
@@ -65,7 +81,7 @@ This repository implements and benchmarks three families of approaches on three 
 | **MELD** | 13,000+ utterances from Friends | 7 (anger, disgust, fear, joy, neutral, sadness, surprise) | ✅ [GitHub](https://github.com/declare-lab/MELD) | Conversational, multi-party, severe class imbalance |
 | **IEMOCAP** | ~12 hours, 5 sessions, 10 actors | 4-class subset (happy, sad, angry, neutral) | 🔒 [License request](https://sail.usc.edu/iemocap/) (free, gated) | The standard SER benchmark; ~1–2 week turnaround |
 
-Run `scripts/download_ravdess.sh` and `scripts/prepare_meld.sh` to fetch the public datasets. The IEMOCAP loader (`src/data/iemocap.py`) is a drop-in once you obtain access.
+Run `scripts/download_ravdess.sh` and `scripts/prepare_meld.sh` to fetch the public datasets. The IEMOCAP loader (`src/data/iemocap.py`) is a drop-in once you obtain official access.
 
 ---
 
@@ -134,12 +150,14 @@ bash scripts/download_ravdess.sh   # ~200MB
 bash scripts/prepare_meld.sh       # ~10GB (videos + audio, requires ffmpeg)
 
 # Smoke test the pipeline (1 train + 1 val + 1 test batch, ~60s)
-python -m src.train --config configs/audio_only_ravdess.yaml --fast-dev-run
+python -m src.train --config configs/audio_only_ravdess_si.yaml --fast-dev-run
 
-# Real run
-python -m src.train --config configs/audio_only_ravdess.yaml
+# Speaker-independent runs (the publishable numbers)
+python -m src.train --config configs/text_only_ravdess_si.yaml
+python -m src.train --config configs/audio_only_ravdess_si.yaml
+python -m src.train --config configs/multimodal_ravdess_si.yaml
 
-# Multimodal cross-attention (the headline configuration)
+# Random-split runs (for reference, easier to compare with older lit)
 python -m src.train --config configs/multimodal_ravdess.yaml
 ```
 
@@ -147,8 +165,8 @@ python -m src.train --config configs/multimodal_ravdess.yaml
 
 ```bash
 python -m src.evaluate \
-  --checkpoint outputs/multimodal_ravdess/best-*.ckpt \
-  --config configs/multimodal_ravdess.yaml
+  --checkpoint outputs/multimodal_ravdess_si/best-*.ckpt \
+  --config configs/multimodal_ravdess_si.yaml
 # → writes metrics.json + confusion_matrix.png to outputs/.../eval/
 ```
 
@@ -156,8 +174,8 @@ python -m src.evaluate \
 
 ```bash
 python demo/gradio_app.py \
-  --checkpoint outputs/multimodal_ravdess/best-*.ckpt \
-  --config configs/multimodal_ravdess.yaml
+  --checkpoint outputs/multimodal_ravdess_si/best-*.ckpt \
+  --config configs/multimodal_ravdess_si.yaml
 ```
 
 ---
@@ -166,9 +184,9 @@ python demo/gradio_app.py \
 
 ```
 speech-emotion-recognition-transfer-learning/
-├── configs/                  # YAML per experiment (text/audio/multimodal × ravdess/meld)
+├── configs/                  # YAML per experiment (text/audio/multimodal × ravdess/meld × random/SI)
 ├── src/
-│   ├── data/                 # ravdess, meld, iemocap loaders + Lightning DataModule
+│   ├── data/                 # ravdess, meld, iemocap loaders + Lightning DataModule with SI splits
 │   ├── models/               # text, audio, fusion encoders + LightningModule
 │   ├── asr/                  # Whisper transcription
 │   ├── utils/                # metrics, seeding
@@ -177,7 +195,7 @@ speech-emotion-recognition-transfer-learning/
 ├── scripts/                  # data download + experiment runners
 ├── results/                  # benchmark tables + plots
 ├── demo/gradio_app.py        # interactive demo
-├── tests/                    # smoke tests + data parsing
+├── tests/                    # smoke tests + data parsing + speaker-independent split
 ├── notebooks/                # exploration / analysis (stubs)
 └── .github/workflows/ci.yml  # lint + tests on every push
 ```
@@ -188,10 +206,11 @@ speech-emotion-recognition-transfer-learning/
 
 A few findings highlighted for reviewers / fellow researchers, all from the [`results/results.md`](results/results.md) RAVDESS write-up:
 
-- **Multimodal helps even when one modality is uninformative.** Text-only is at chance (0.053 WF1) because RAVDESS has only 2 fixed sentences. Yet adding the text branch via cross-attention lifts the audio-only baseline from 0.796 to 0.858 WF1. The text branch likely acts as a soft regularizer or weak per-input prior rather than a semantic signal contributor.
-- **Multimodal gains concentrate on previously-weakest classes.** Neutral, sad, and disgust each gain +10 pp or more; surprised gains only +1.5 pp. This is the signature of a useful intervention, not random noise.
-- **Hyperparameter sensitivity in SSL fine-tuning is severe.** An early run with LR=1e-4 (the wav2vec2 *pre-training* LR) diverged — model unlearned representations, EarlyStopping triggered at epoch 4, test WF1 0.27. LR=2e-5 with 8/12 layers frozen reached 0.796. **5× LR difference → 3× performance gap.**
-- **MELD's class imbalance is going to dominate when we get there** (~48 % neutral utterances). UF1 will be the more honest metric than WF1, and the confusion matrices will tell the real story.
+- **Multimodal advantage *grows* on speaker-independent split.** Random: multimodal +6.2 pp over audio-only. SI: multimodal **+6.9 pp**. The fusion is more useful, not less, when the test set has unseen speakers.
+- **Multimodal rescues the neutral class on unseen speakers.** Audio-only F1=0.21 (recall 0.125) → multimodal F1=0.78. The text branch, despite being at chance overall, provides enough disambiguation signal to recover neutral utterances from new voices.
+- **Speaker leakage inflates random-split numbers by ~13 pp.** Useful reference when comparing to literature: a 0.85 WF1 random-split number is roughly equivalent to a 0.72 WF1 on a proper speaker-independent split.
+- **Multimodal helps even when one modality is uninformative.** Text-only is at chance (0.03 SI WF1) because RAVDESS has only 2 fixed sentences. Yet adding the text branch via cross-attention still lifts the audio-only baseline meaningfully.
+- **Hyperparameter sensitivity in SSL fine-tuning is severe.** An early run with LR=1e-4 (the wav2vec2 *pre-training* LR) diverged — model unlearned representations. LR=2e-5 with 8/12 layers frozen reached the published numbers above. **5× LR difference → 3× performance gap.**
 
 ---
 
@@ -203,15 +222,13 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 - [x] PyTorch Lightning training + evaluation
 - [x] Gradio demo (pretrained + custom checkpoint modes)
 - [x] CI: lint + smoke tests on Python 3.10 / 3.11
-- [x] **RAVDESS audio-only baseline — WF1 0.796**
-- [x] **RAVDESS text-only ablation — WF1 0.053 (at chance, as expected)**
-- [x] **RAVDESS multimodal cross-attention — WF1 0.858 (+6.2 pp over audio-only)**
-- [ ] Speaker-independent split for honest RAVDESS numbers
+- [x] **RAVDESS random-split baselines** (text-only, audio-only, multimodal — multimodal WF1 0.858)
+- [x] **RAVDESS speaker-independent baselines** (the publishable numbers — multimodal WF1 0.728)
 - [ ] MELD baselines (text-only with context, audio-only, multimodal)
-- [ ] IEMOCAP loader implementation (pending license)
+- [ ] IEMOCAP loader implementation (pending USC SAIL license)
 - [ ] HuggingFace Spaces deployment of the demo
 - [ ] Blog post on [skakarh.com](https://www.skakarh.com/blog/) with results writeup
-- [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2)
+- [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2) — future research phase
 
 ---
 
@@ -247,7 +264,8 @@ MIT © [Shahnawaz Khan](https://github.com/ShahnawazKakarh)
 | | |
 |---|---|
 | 🌐 **Website** | [www.skakarh.com](https://www.skakarh.com) |
+| 🛍️ **Products** | [www.skakarh.com/products](https://www.skakarh.com/products) |
 | ✍️ **Blog** | [skakarh.com/blog](https://www.skakarh.com/blog/) |
 | 🛠️ **Services** | [skakarh.com/services](https://www.skakarh.com/services/) |
-| 💼 **LinkedIn** | [linkedin.com/in/shahnawazkakarh](https://www.linkedin.com/in/shahnawazkakarh) |
+| 💼 **LinkedIn** | [linkedin.com/in/skakarh](https://www.linkedin.com/in/skakarh) |
 | 📦 **More projects** | [github.com/ShahnawazKakarh](https://github.com/ShahnawazKakarh) |
