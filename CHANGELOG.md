@@ -5,6 +5,24 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+### Added — MELD baselines (text / audio / multimodal) 🎹
+- **Three new MELD-7 baselines** trained and evaluated end-to-end:
+  - Text-only RoBERTa-base + 2-utterance context — **WF1 0.609** (top of literature range 0.55–0.62)
+  - Audio-only WavLM-base — WF1 0.357 (literature range 0.30–0.45; class-collapse on surprise/fear/disgust as expected on MELD)
+  - Multimodal RoBERTa + WavLM cross-attention — WF1 0.590
+- **Headline finding**: on MELD, text-only beats multimodal by 1.9 pp WF1 — the *opposite* of RAVDESS where multimodal won by 6.9 pp. This isn't a regression: it's the modality-complementarity phenomenon that gives a strong two-dataset story (see `results/results.md` § "Cross-experiment observations").
+- New per-class F1 tables and a full "Detailed results — MELD" section in `results/results.md`.
+- Long-form writeups under `docs/writeups/`: SEO blog post, IEEE-style short paper, LinkedIn announcement.
+
+### Added — MELD data pipeline
+- `scripts/prepare_meld.sh`: robust download (resume, gzip integrity check, retry loop, speed-floor abort), inner-tarball extraction, hardcoded video-dir mapping (bash 3.2 / macOS compatible), per-500-file ffmpeg progress, graceful skip of corrupted .mp4s.
+- `scripts/check_meld_audio.py`: standalone audit script that scans all three splits and reports missing / empty .wav files vs the CSV labels.
+- `src/data/meld.py`: loader now filters rows whose .wav is missing or 0-byte at `__init__` time and prints a clean count (`dropped N rows with missing or empty audio`).
+
+### Fixed — MELD config tuning
+- `configs/audio_only_meld.yaml`: lowered LR from 1e-4 (the WavLM *pre-training* rate, prone to divergence on small fine-tuning runs) to 2e-5. Reuses the lesson learned from the RAVDESS audio-only divergence saga.
+- `configs/multimodal_meld.yaml`: MPS-friendly memory profile — `batch_size: 2` with `accumulate_grad_batches: 8` (effective batch 16 unchanged), `max_audio_seconds` 8.0 → 5.0, `max_text_tokens` 128 → 96. Original config OOM'd at epoch 0, batch 154/1249 on a 24GB unified-memory M-series Mac. New config completes 10 epochs cleanly.
+
 ### Added — HuggingFace Spaces live demo 🎉
 - **Live deployment**: [huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition) is now public, running `superb/wav2vec2-base-superb-er` on a free CPU tier.
 - New `🤗 Open in Spaces` badge in the main README.

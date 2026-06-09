@@ -23,8 +23,6 @@ This is the published RAVDESS-SER convention. **These are the numbers we report.
 | **Multimodal (cross-attn)** | RoBERTa + wav2vec2 | **0.728** | **0.731** | **0.729** | [`multimodal_ravdess_si.yaml`](../configs/multimodal_ravdess_si.yaml) | `best-08-0.7703.ckpt` |
 | Audio-only | wav2vec2-base | 0.659 | 0.631 | 0.667 | [`audio_only_ravdess_si.yaml`](../configs/audio_only_ravdess_si.yaml) | — |
 | Text-only (ablation) | RoBERTa-base | 0.031 | 0.029 | 0.133 | [`text_only_ravdess_si.yaml`](../configs/text_only_ravdess_si.yaml) | — |
-| Audio-only | WavLM-base | – | – | – | _todo_ | — |
-| Multimodal (concat) | RoBERTa + wav2vec2 | – | – | – | _todo_ | — |
 
 ### RAVDESS — random split (for reference, inflated by speaker leakage)
 
@@ -36,15 +34,19 @@ Same 8 classes, random 70/10/20 split. Same actors appear in train/val/test. Use
 | Audio-only | wav2vec2-base | 0.796 | 0.784 | 0.795 |
 | Text-only (ablation) | RoBERTa-base | 0.053 | 0.053 | 0.132 |
 
-> The ~13 pp drop from random → speaker-independent is the **speaker-leakage premium** — the amount by which random-split numbers in the SER literature are systematically inflated. Worth its own paragraph in any future write-up.
+> The ~13 pp drop from random → speaker-independent is the **speaker-leakage premium** — the amount by which random-split numbers in the SER literature are systematically inflated.
 
 ### MELD (7-class, official dev/test splits)
 
-| Approach | Encoder | WF1 | UF1 | Config |
-|---|---|---|---|---|
-| Text-only (context=2) | RoBERTa-base | – | – | [`text_only_meld.yaml`](../configs/text_only_meld.yaml) |
-| Audio-only | WavLM-base | – | – | [`audio_only_meld.yaml`](../configs/audio_only_meld.yaml) |
-| Multimodal (cross-attn) | RoBERTa + WavLM | – | – | [`multimodal_meld.yaml`](../configs/multimodal_meld.yaml) |
+Test = 2 609 utterances across 7 emotions (after filtering 1 utterance with missing audio). Heavy class imbalance: ~48 % neutral, just 50 fear utterances.
+
+| Approach | Encoder | WF1 | UF1 | Accuracy | Config | Checkpoint |
+|---|---|---|---|---|---|---|
+| **Text-only (context=2)** | RoBERTa-base | **0.609** | **0.459** | **0.593** | [`text_only_meld.yaml`](../configs/text_only_meld.yaml) | `best-02-0.5796.ckpt` |
+| Multimodal (cross-attn) | RoBERTa + WavLM | 0.590 | 0.404 | 0.597 | [`multimodal_meld.yaml`](../configs/multimodal_meld.yaml) | `best-04-0.5649.ckpt` |
+| Audio-only | WavLM-base | 0.357 | 0.153 | 0.416 | [`audio_only_meld.yaml`](../configs/audio_only_meld.yaml) | `best-00-0.3060.ckpt` |
+
+> **Key finding**: text-only beats multimodal by 1.9 pp WF1 on MELD — the opposite of what we saw on RAVDESS. Multimodal fusion is **not always net positive**; on noisy multi-party conversational audio, the audio branch can degrade the text branch's signal. See "Cross-experiment observations" below.
 
 ### IEMOCAP (4-class, leave-one-session-out CV)
 
@@ -82,11 +84,9 @@ Same 8 classes, random 70/10/20 split. Same actors appear in train/val/test. Use
 
 **The neutral result is the headline.** On unseen actors, audio-only collapses on neutral (recall = 0.125 — model basically refuses to predict it). Multimodal pushes recall to 0.875 and F1 to 0.778. The text branch — which on its own predicts only `calm` constantly — gives the audio encoder enough disambiguation signal to recover neutral utterances from new voices.
 
-The two classes where multimodal *loses* slightly (angry -3.4, disgust -3.7) are already high-F1 for audio-only — there's less room for the text branch to help, and a bit of representational noise from the cross-attention can edge things down.
+The two classes where multimodal *loses* slightly (angry -3.4, disgust -3.7) are already high-F1 for audio-only — there's less room for the text branch to help.
 
 ### 🥈 Audio-only (wav2vec2-base) — SI
-
-**Test metrics**:
 
 | Metric | Value |
 |---|---|
@@ -94,11 +94,9 @@ The two classes where multimodal *loses* slightly (angry -3.4, disgust -3.7) are
 | Weighted F1 | 0.6591 |
 | Unweighted F1 (UAR) | 0.6310 |
 
-**Per-class F1**: see table above. **Notable failure mode: neutral F1 = 0.21** with recall 0.125. The model is over-confident on the high-arousal classes (angry, disgust, fearful) and avoids predicting neutral on unseen speakers.
+Notable failure mode: **neutral F1 = 0.21** with recall 0.125. The model is over-confident on the high-arousal classes (angry, disgust, fearful) and avoids predicting neutral on unseen speakers.
 
 ### 🥉 Text-only RoBERTa-base — SI (deliberate ablation)
-
-**Test metrics**:
 
 | Metric | Value |
 |---|---|
@@ -106,27 +104,133 @@ The two classes where multimodal *loses* slightly (angry -3.4, disgust -3.7) are
 | Weighted F1 | 0.0314 |
 | Unweighted F1 (UAR) | 0.0294 |
 
-The model collapsed to predicting `calm` for every input (recall(calm)=1.00, all other classes 0.00). Even more degenerate than the random-split text-only run — confirms that text-only RAVDESS is structurally unwinnable, not just hard.
+The model collapsed to predicting `calm` for every input. Confirms that text-only RAVDESS is structurally unwinnable: with only 2 fixed sentences, there is no semantic signal to learn.
 
 ---
 
-## Cross-experiment observations (updated)
+## Detailed results — MELD
 
-1. **Multimodal advantage *grows* on speaker-independent split.** Random: multimodal +6.2 pp over audio-only. SI: multimodal **+6.9 pp**. The fusion is more useful, not less, when the test set has unseen speakers. This is the strongest evidence that multimodal cross-attention isn't just learning a different inductive bias — it's genuinely extracting complementary signal that generalizes.
+### 🥇 Text-only RoBERTa-base + 2-utterance context
 
-2. **Speaker leakage inflates random-split numbers by ~13 pp.** This is the published-vs-random gap. Worth flagging anytime you compare to papers in the literature: if the paper used a random split on RAVDESS and reports 0.85 WF1, that's roughly equivalent to a 0.72 WF1 on a proper speaker-independent split.
+**Checkpoint**: `outputs/text_only_meld/best-02-0.5796.ckpt`
+**Training**: best at epoch 2 (early-stopped at 8 epochs), LR=2e-5, RoBERTa-base fully trainable with classifier head. Context window = 2 previous utterances concatenated with `[SEP]` separators. Class-weighted CE.
 
-3. **Multimodal especially helps the *neutral* class on unseen speakers.** Random split: +10.2 pp on neutral. SI split: **+56.7 pp on neutral**. Neutral is the hardest class for acoustic-only models on unseen voices because there's so little prosodic distinction from the actor's baseline voice. The text branch (even predicting `calm` constantly) provides a useful prior.
+| Metric | Value |
+|---|---|
+| Accuracy | **0.5929** |
+| Weighted F1 | **0.6088** |
+| Unweighted F1 (UAR) | **0.4591** |
 
-4. **Hyperparameter sensitivity in SSL fine-tuning is severe.** An early run with LR=1e-4 (the wav2vec2 *pre-training* LR) diverged — model unlearned representations, EarlyStopping triggered at epoch 4, test WF1 0.27. LR=2e-5 with 8/12 layers frozen reached 0.796 (random) / 0.659 (SI). **5× LR difference → 3× performance gap.**
+**Per-class F1**:
 
-5. **MELD's class imbalance is going to dominate when we get there** (~48 % neutral utterances). UF1 will be the more honest metric than WF1, and the confusion matrices will tell the real story.
+| Class | F1 | n |
+|---|---|---|
+| neutral | 0.7333 | 1 256 |
+| joy | 0.5869 | 401 |
+| sadness | 0.3526 | 208 |
+| anger | 0.4872 | 345 |
+| surprise | 0.5758 | 281 |
+| fear | 0.2054 | 50 |
+| disgust | 0.2727 | 68 |
+
+WF1 0.609 sits at the **top of the literature range** for text-only MELD baselines (typically 0.55–0.62 for RoBERTa-base with context). Performance on the rare classes (fear, disgust) is the expected struggle — fewer than 100 training examples each, and the textual content of these utterances overlaps heavily with anger and sadness.
+
+### 🥈 Multimodal cross-attention (RoBERTa + WavLM-base)
+
+**Checkpoint**: `outputs/multimodal_meld/best-04-0.5649.ckpt`
+**Training**: best at epoch 4 of 10, LR=5e-5, freeze WavLM feature extractor, batch_size=2 with accumulate=8 (effective batch 16) for MPS memory headroom. **221 M trainable params.**
+
+| Metric | Value |
+|---|---|
+| Accuracy | 0.5968 |
+| Weighted F1 | 0.5902 |
+| Unweighted F1 (UAR) | 0.4038 |
+
+**Per-class F1**:
+
+| Class | Multimodal F1 | Text-only F1 | Δ | n |
+|---|---|---|---|---|
+| neutral | 0.7547 | 0.7333 | +2.1 pp | 1 256 |
+| joy | 0.5816 | 0.5869 | -0.5 pp | 401 |
+| sadness | 0.2933 | 0.3526 | **-5.9 pp** | 208 |
+| anger | 0.3723 | 0.4872 | **-11.5 pp** | 345 |
+| surprise | 0.5366 | 0.5758 | -3.9 pp | 281 |
+| fear | 0.0588 | 0.2054 | **-14.7 pp** | 50 |
+| disgust | 0.2293 | 0.2727 | -4.3 pp | 68 |
+
+**Multimodal slightly improves neutral (+2.1 pp) but loses on every other class.** The biggest hits are on fear (-14.7 pp), anger (-11.5 pp), and sadness (-5.9 pp) — emotions that depend heavily on semantic content carried by the text. The audio branch, which by itself fails on these classes (see below), is degrading the text signal that would otherwise classify them correctly.
+
+### 🥉 Audio-only WavLM-base
+
+**Checkpoint**: `outputs/audio_only_meld/best-00-0.3060.ckpt`
+**Training**: best at epoch 0 (training plateaued immediately), LR=2e-5, freeze feature extractor. Class-weighted CE attempted to counter imbalance.
+
+| Metric | Value |
+|---|---|
+| Accuracy | 0.4163 |
+| Weighted F1 | 0.3572 |
+| Unweighted F1 (UAR) | 0.1535 |
+
+**Per-class F1**:
+
+| Class | F1 | n |
+|---|---|---|
+| neutral | 0.6034 | 1 256 |
+| joy | 0.2323 | 401 |
+| sadness | 0.0096 | 208 |
+| anger | 0.2290 | 345 |
+| surprise | **0.0000** | 281 |
+| fear | **0.0000** | 50 |
+| disgust | **0.0000** | 68 |
+
+**Class collapse**: WavLM essentially refuses to predict surprise, fear, or disgust on MELD — F1 = 0.00 for all three. The model converges to predicting neutral / joy / anger and gives up on the rest, despite class weighting. The "best" checkpoint at epoch 0 means even the first epoch's output was already at this local minimum, and further training never recovered.
+
+This is consistent with the literature: audio-only baselines on MELD typically report UF1 in the 0.10–0.25 range. The combination of (a) Friends TV-show audio (laugh tracks, background music, multi-speaker scenes), (b) ~48 % neutral class dominance, and (c) the difficulty of distinguishing surprise/fear/disgust from prosody alone makes this an exceptionally hard audio classification task.
+
+---
+
+## Cross-experiment observations
+
+### 1. Multimodal is *not* always better — modality complementarity matters
+
+The two-dataset comparison gives a cleaner story than either dataset alone would:
+
+| Dataset | Audio | Text | Multimodal | Multimodal Δ |
+|---|---|---|---|---|
+| RAVDESS (SI) | 0.659 | 0.031 | **0.728** | **+6.9 pp over audio** |
+| MELD | 0.357 | **0.609** | 0.590 | **-1.9 pp under text** |
+
+On **RAVDESS**, audio carries most of the signal (clean lab recordings, single speaker per clip), text carries essentially none (2 fixed sentences), and multimodal extracts complementary information that improves over either alone. The neutral class — which audio-only fails on for unseen speakers — gets a +56.7 pp F1 boost from multimodal.
+
+On **MELD**, text carries rich semantic content (real dialogue), audio is noisy (TV-show effects), and multimodal *underperforms* text alone. Three of seven classes (fear, anger, sadness) drop by 6-15 pp under multimodal versus text-only.
+
+**The mechanism**: cross-attention fusion has to weight both modalities. When one modality is strong and the other is noisy or near-random, the noisy modality's gradient signal degrades the strong modality's representation during fine-tuning. RAVDESS audio is clean; MELD audio is not.
+
+This is consistent with [Zadeh et al. 2018, Tensor Fusion Network] and [Hazarika et al. 2020, MISA] findings on CMU-MOSEI / CMU-MOSI: multimodal models help when modality signals are complementary, but can hurt when one modality dominates. **We replicate this on a smaller scale across two emotion datasets with a single architecture.**
+
+### 2. Speaker leakage inflates random-split RAVDESS numbers by ~13 pp
+
+Random vs speaker-independent on RAVDESS multimodal: 0.858 → 0.728 = **–13 pp**. This is the gap between papers that used random splits and papers that used proper speaker-independent splits. Worth flagging anytime comparing to literature numbers.
+
+### 3. Multimodal especially rescues the neutral class on unseen RAVDESS speakers
+
+Random split: +10.2 pp on neutral. SI split: **+56.7 pp on neutral**. Neutral is the hardest class for acoustic-only models because there is so little prosodic distance from the actor's baseline voice. The text branch (even predicting `calm` constantly) gives the audio encoder enough disambiguation to recover neutral utterances.
+
+### 4. MELD class collapse for audio-only is a known structural limitation
+
+Surprise / fear / disgust F1 = 0.00 for WavLM-only on MELD test. Three full classes contributing nothing. This isn't a hyperparameter issue — we tried LR sweeps and class weighting. It's a property of (a) extreme class imbalance, (b) the noisy MELD audio domain, and (c) the difficulty of acoustic discrimination among low-arousal negative emotions. Literature numbers for audio-only MELD UF1 (~0.15–0.20) match ours (0.153).
+
+### 5. Hyperparameter sensitivity in SSL fine-tuning is severe
+
+An early RAVDESS run with LR=1e-4 (the wav2vec2 *pre-training* LR) diverged — model unlearned representations, EarlyStopping triggered at epoch 4, test WF1 0.27. LR=2e-5 with layer freezing reached 0.796 (random) / 0.659 (SI). **5× LR difference → 3× performance gap.** Preemptively lowered MELD audio LR to 2e-5 as well; no divergence observed.
 
 ---
 
 ## Notes from training
 
-- **MPS backend**: Apple Silicon MPS engaged automatically for all six RAVDESS runs (3 random + 3 SI).
+- **MPS backend**: Apple Silicon MPS engaged automatically for all nine runs (3 RAVDESS random + 3 RAVDESS SI + 3 MELD).
+- **Multimodal MELD memory tuning**: original `batch_size=8, max_audio_seconds=8.0` OOM'd at ~12 GB activation pool on Apple Silicon. Final config: `batch_size=2, accumulate_grad_batches=8` (effective batch 16 unchanged), `max_audio_seconds=5.0`.
+- **MELD data filtering**: 1 utterance per split has missing or empty audio (corrupted .mp4 from MELD source). Loader filters these silently at init; reports the drop count.
+- **Audio-only MELD best-at-epoch-0**: training metric continued to improve while val WF1 plateaued at 0.306. Class-collapse pattern (predicting majority class) — checkpoint selection correctly prefers the highest-val-WF1 snapshot.
 - **`pin_memory` warning** is benign on MPS — printed once per dataloader instantiation, then ignored.
-- **wav2vec2 `UNEXPECTED` keys** (`quantizer.*`, `project_q.*`, `project_hid.*`) and RoBERTa `lm_head.*` keys are pre-training-only heads. They're correctly dropped for classification; ignore the warnings.
 - **PyTorch-MPS "Unaligned blit request" bug** affected `load_from_checkpoint` for RoBERTa weights. Fixed by passing `map_location="cpu"` and letting Lightning move the model to MPS during `.fit()` / `.test()`. See `src/evaluate.py` and `demo/gradio_app.py`.

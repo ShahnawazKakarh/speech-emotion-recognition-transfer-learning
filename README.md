@@ -62,11 +62,21 @@ Full per-class breakdown, confusion matrices, and the LR-divergence postmortem i
 
 ### MELD (7-class, official splits)
 
-| Approach | Encoder | WF1 | UF1 |
-|---|---|---|---|
-| Text-only (context=2) | RoBERTa-base | – | – |
-| Audio-only | WavLM-base | – | – |
-| Multimodal (cross-attn) | RoBERTa + WavLM | – | – |
+Test = 2,609 utterances. Heavy class imbalance (~48% neutral, just 50 fear utterances).
+
+| Approach | Encoder | WF1 | UF1 | Accuracy |
+|---|---|---|---|---|
+| **Text-only (context=2)** | RoBERTa-base | **0.609** | **0.459** | **0.593** |
+| Multimodal (cross-attn) | RoBERTa + WavLM | 0.590 | 0.404 | 0.597 |
+| Audio-only | WavLM-base | 0.357 | 0.153 | 0.416 |
+
+**Headline findings**:
+
+- **Text-only beats multimodal by 1.9 pp WF1** on MELD — *the opposite* of what we saw on RAVDESS. Same architecture, opposite verdict.
+- **Modality complementarity is the determining factor.** Multimodal fusion helps when both modalities carry independent, non-noisy signal (RAVDESS audio is rich, text is degenerate → fusion wins). It hurts when one modality is strong and the other is noise (MELD text is rich, audio is noisy TV-show clips → fusion loses).
+- **WavLM-base class-collapses** on MELD: surprise / fear / disgust F1 = 0.000. The audio backbone refuses to predict three of seven classes and converges on a "predict neutral / joy / anger, give up on the rest" local minimum. Consistent with published MELD audio-only baselines (UF1 ~0.15–0.20).
+
+Full per-class breakdown, confusion matrices, and the *modality-complementarity discussion* in [`results/results.md`](results/results.md). Long-form blog + LaTeX paper + LinkedIn post in [`docs/writeups/`](docs/writeups/).
 
 ### IEMOCAP (4-class)
 
@@ -229,9 +239,10 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 - [x] **RAVDESS speaker-independent baselines** (the publishable numbers — multimodal WF1 0.728)
 - [x] **HuggingFace Spaces scaffold** ([`space/`](space/) — see [`space/README_DEPLOY.md`](space/README_DEPLOY.md))
 - [x] **HuggingFace Spaces live deployment** — [🤗 huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
-- [ ] MELD baselines (text-only with context, audio-only, multimodal)
+- [x] **MELD baselines** (text-only WF1 0.609, audio-only 0.357, multimodal 0.590 — "multimodal isn't always better" finding)
+- [x] **Long-form writeups** ([blog post](docs/writeups/blog-post.md), [research paper LaTeX](docs/writeups/paper.tex), [LinkedIn post](docs/writeups/linkedin-post.md))
+- [ ] Publish blog post to [skakarh.com](https://www.skakarh.com/blog/)
 - [ ] IEMOCAP loader implementation (pending USC SAIL license)
-- [ ] Blog post on [skakarh.com](https://www.skakarh.com/blog/) with results writeup
 - [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2) — future research phase
 
 ---
