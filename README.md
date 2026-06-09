@@ -76,7 +76,7 @@ Test = 2,609 utterances. Heavy class imbalance (~48% neutral, just 50 fear utter
 - **Modality complementarity is the determining factor.** Multimodal fusion helps when both modalities carry independent, non-noisy signal (RAVDESS audio is rich, text is degenerate → fusion wins). It hurts when one modality is strong and the other is noise (MELD text is rich, audio is noisy TV-show clips → fusion loses).
 - **WavLM-base class-collapses** on MELD: surprise / fear / disgust F1 = 0.000. The audio backbone refuses to predict three of seven classes and converges on a "predict neutral / joy / anger, give up on the rest" local minimum. Consistent with published MELD audio-only baselines (UF1 ~0.15–0.20).
 
-Full per-class breakdown, confusion matrices, and the *modality-complementarity discussion* in [`results/results.md`](results/results.md). Long-form blog + LaTeX paper + LinkedIn post in [`docs/writeups/`](docs/writeups/).
+Full per-class breakdown, confusion matrices, and the *modality-complementarity discussion* in [`results/results.md`](results/results.md).
 
 ### IEMOCAP (4-class)
 
