@@ -22,7 +22,9 @@ trainer:
   accumulate_grad_batches: 2
 
 optimizer:
-  lr: 1.0e-4
+  # Lower than the default 1e-4: that's the SSL *pre-training* LR and tends to
+  # diverge on small fine-tuning runs (see results/results.md "LR=1e-4 cautionary tale").
+  lr: 2.0e-5
 
 loss:
-  use_class_weights: true
+  use_class_weights: true   # MELD is dominated by `neutral` (~48%)

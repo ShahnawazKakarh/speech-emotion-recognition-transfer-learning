@@ -73,6 +73,21 @@ class MELDDataset(BaseSERDataset):
 
         self.audio_dir = self.data_dir / self.SPLIT_TO_AUDIO_DIR[split]
 
+        # Filter rows whose audio is missing or empty (ffmpeg sometimes produces
+        # empty .wav for .mp4 files with broken moov atoms; some MELD .mp4s also
+        # have no audio stream at all).
+        before = len(self.df)
+        def _audio_ok(row):
+            p = self.audio_dir / f"dia{int(row['Dialogue_ID'])}_utt{int(row['Utterance_ID'])}.wav"
+            return p.exists() and p.stat().st_size > 0
+        self.df = self.df[self.df.apply(_audio_ok, axis=1)].reset_index(drop=True)
+        after = len(self.df)
+        if after < before:
+            print(
+                f"[MELD/{split}] dropped {before - after} rows with missing or empty audio "
+                f"({before} → {after})"
+            )
+
         # Pre-group by dialogue for context lookup
         self._dialogue_groups = {
             did: g.sort_values("Utterance_ID").reset_index(drop=True)
