@@ -19,13 +19,15 @@ data:
   data_dir: data/meld
   use_context: true
   context_window: 2
-  batch_size: 8
-  max_audio_seconds: 8.0
-  max_text_tokens: 128
+  # MPS-friendly: batch_size 2 with accumulate 8 = effective batch 16
+  # (was 8 with accumulate 2 = effective 16, OOM at ~12GB activation pool)
+  batch_size: 2
+  max_audio_seconds: 5.0   # was 8.0 — biggest single memory factor on MPS
+  max_text_tokens: 96      # was 128 — minor savings
 
 trainer:
   max_epochs: 10
-  accumulate_grad_batches: 2
+  accumulate_grad_batches: 8
 
 optimizer:
   lr: 5.0e-5
