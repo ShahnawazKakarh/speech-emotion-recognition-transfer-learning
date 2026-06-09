@@ -16,17 +16,17 @@
 
 ## 🧭 Overview
 
-Speech Emotion Recognition (SER) lives at the intersection of **paralinguistic signal** (pitch, prosody, energy) and **linguistic content** (what was actually said). Labeled emotion data is scarce — IEMOCAP has ~12 hours, RAVDESS has 1,440 clips — so **transfer learning from self-supervised speech models and large language models** is the dominant paradigm.
+Speech Emotion Recognition (SER) lives at the intersection of **paralinguistic signal** (pitch, prosody, energy) and **linguistic content** (what was actually said). Labeled emotion data is scarce — IEMOCAP has ~12 hours, RAVDESS has 1,440 clips, MELD has 13K utterances — so **transfer learning from self-supervised speech models and large language models** is the dominant paradigm.
 
-This repository implements and benchmarks three families of approaches on three standard datasets, so you can directly compare:
+This repository implements and benchmarks three families of approaches on standard English emotion datasets (RAVDESS, MELD), and serves as the foundation for an active research programme on **cross-lingual SER for low-resource South Asian languages** (Urdu, Hindi, Punjabi) — a population of over 700 million speakers almost entirely underserved by current emotion AI research.
 
 | Approach | Encoder | What it captures | Strength |
 |---|---|---|---|
-| **Text-only** | `RoBERTa` on Whisper transcripts | Lexical / semantic emotion cues | Cheap, leverages NLP ecosystem |
-| **Audio-only** | `wav2vec2` / `WavLM` / `HuBERT` | Prosody, voice quality, paralinguistic cues | Captures *how* something is said |
+| **Text-only** | `RoBERTa` (current) / `XLM-R` (future) | Lexical / semantic emotion cues | Cheap, leverages NLP ecosystem |
+| **Audio-only** | `wav2vec2` / `WavLM` (current) / `XLS-R` (future) | Prosody, voice quality, paralinguistic cues | Captures *how* something is said |
 | **Multimodal** | Audio + Text with cross-attention fusion | Both signals jointly | State-of-the-art on conversational SER |
 
-> **Why this matters for NLP:** the "NLP-only" view of SER (ASR → BERT) systematically loses sarcasm, intonation, and arousal cues. This repo demonstrates *quantitatively* where text-only fails and how multimodal fusion recovers — and even *exceeds* — audio-only performance, both with random splits and with speaker-independent (publishable) splits.
+> **Research direction.** This work establishes English baselines that quantify a non-obvious finding: multimodal fusion is not universally better than unimodal models. The next phase extends the framework to multilingual encoders (`xlm-roberta-base`, `wav2vec2-xls-r-300m`) and applies it to Urdu, Hindi, and Punjabi using a self-recorded native-speaker corpus. The objective is to enable downstream emotion AI applications — mental-health screening, call-centre analytics, accessibility technology — for South Asian language communities currently excluded from English-centric SER systems.
 
 ---
 
@@ -229,21 +229,40 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 
 ## 🛣️ Roadmap
 
+### Phase 1 — English baselines (complete ✅)
+
 - [x] Repo scaffolding + configs
-- [x] Data loaders (RAVDESS, MELD), IEMOCAP stub
+- [x] Data loaders (RAVDESS, MELD) + IEMOCAP stub
 - [x] Text + audio encoders + concat / gated / cross-attention fusion
 - [x] PyTorch Lightning training + evaluation
 - [x] Gradio demo (pretrained + custom checkpoint modes)
 - [x] CI: lint + smoke tests on Python 3.10 / 3.11
-- [x] **RAVDESS random-split baselines** (text-only, audio-only, multimodal — multimodal WF1 0.858)
-- [x] **RAVDESS speaker-independent baselines** (the publishable numbers — multimodal WF1 0.728)
-- [x] **HuggingFace Spaces scaffold** ([`space/`](space/) — see [`space/README_DEPLOY.md`](space/README_DEPLOY.md))
-- [x] **HuggingFace Spaces live deployment** — [🤗 huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
-- [x] **MELD baselines** (text-only WF1 0.609, audio-only 0.357, multimodal 0.590 — "multimodal isn't always better" finding)
-- [x] **Long-form writeups** ([blog post](docs/writeups/blog-post.md), [research paper LaTeX](docs/writeups/paper.tex), [LinkedIn post](docs/writeups/linkedin-post.md))
-- [ ] Publish blog post to [skakarh.com](https://www.skakarh.com/blog/)
-- [ ] IEMOCAP loader implementation (pending USC SAIL license)
-- [ ] Cross-lingual transfer experiment (XLM-R + multilingual wav2vec2) — future research phase
+- [x] **RAVDESS random-split baselines** (multimodal WF1 0.858)
+- [x] **RAVDESS speaker-independent baselines** (multimodal WF1 0.728)
+- [x] **HuggingFace Spaces live deployment** — [demo](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
+- [x] **MELD baselines** (text 0.609 / audio 0.357 / multimodal 0.590 — *modality-complementarity finding*)
+
+### Phase 2 — Broader English coverage (in progress 🟡)
+
+- [ ] IEMOCAP loader implementation (USC SAIL license requested)
+- [ ] Three-dataset comparative analysis (RAVDESS + MELD + IEMOCAP)
+
+### Phase 3 — Cross-lingual SER for South Asian languages (active research 🔬)
+
+- [ ] Multilingual encoder integration (`xlm-roberta-base` + `wav2vec2-xls-r-300m`)
+- [ ] Literature review of cross-lingual SER + Indo-Aryan emotion datasets
+- [ ] Self-recorded Urdu / Punjabi / Hindi SER corpus (target: 500+ clips, 8–12 native speakers, 6 emotions, multi-annotator labels)
+- [ ] Recording protocol + ethics consent pipeline
+- [ ] Zero-shot, few-shot, and fully-fine-tuned cross-lingual evaluation
+- [ ] First publication: target Interspeech / ICASSP workshop 2027 or IEEE TASLP
+
+### Phase 4 — Deployment + outreach
+
+- [ ] Mental-health screening pilot (research partnership exploration)
+- [ ] Multilingual extension of the HuggingFace Spaces demo
+- [ ] Blog post series on skakarh.com on multilingual SER
+
+> The Phase 3 cross-lingual work is the principal novel research contribution of this programme. Phases 1 and 2 establish the engineering foundation and English baselines that the cross-lingual study compares against. See the [research direction note](#research-direction) in the Overview section for the broader motivation.
 
 ---
 
@@ -271,6 +290,20 @@ Contributions, bug reports, and feature requests are welcome. Please read [`CONT
 ## 📄 License
 
 MIT © [Shahnawaz Khan](https://github.com/ShahnawazKakarh)
+
+---
+
+## 👤 About the Author
+
+This project is built by **Muhammad Shahnawaz Khan**, a software engineer working at the intersection of backend systems and applied AI/ML. Day-to-day work spans Python and JavaScript backends, HuggingFace + transformers-based applications, GenAI tooling, and production ML systems. This repository is independent research conducted alongside that practitioner work — part of a broader programme on emotion AI for underserved languages.
+
+| | |
+|---|---|
+| 🌐 Website | [skakarh.com](https://www.skakarh.com) |
+| 📖 ORCID | [0009-0007-4055-6563](https://orcid.org/0009-0007-4055-6563) |
+| 💼 LinkedIn | [linkedin.com/in/skakarh](https://www.linkedin.com/in/skakarh) |
+| 💻 GitHub | [@ShahnawazKakarh](https://github.com/ShahnawazKakarh) |
+| ✉️ Email | shahnawaz.jrw@gmail.com |
 
 ---
 
