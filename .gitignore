@@ -229,3 +229,20 @@ __marimo__/
 .vscode/
 .idea/
 *.swp
+
+# ============================================================
+# Private research artifacts — keep local, do not publish
+# ============================================================
+
+# Long-form writeups (blog drafts, paper drafts, LinkedIn posts, generated PDF)
+# These remain personal until the underlying research is published.
+/docs/writeups/
+
+# Cross-lingual research scaffold (in-progress, contains unpublished plans,
+# literature notes, and eventually a self-recorded private dataset)
+/research/
+
+# Any private notes / scratch work
+/notes/
+/scratch/
+/private/

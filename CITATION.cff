@@ -5,12 +5,16 @@ title: "Speech Emotion Recognition via Transfer Learning"
 abstract: >
   An open-source comparison of text-only (RoBERTa), audio-only (wav2vec2 / WavLM),
   and multimodal cross-attention transfer learning approaches for Speech Emotion
-  Recognition on RAVDESS, MELD, and IEMOCAP. Implemented with PyTorch Lightning
-  and HuggingFace Transformers, with a Gradio demo.
+  Recognition on RAVDESS and MELD. Establishes English baselines as the foundation
+  for an active research programme on cross-lingual SER for low-resource South
+  Asian languages (Urdu, Hindi, Punjabi). Implemented with PyTorch Lightning and
+  HuggingFace Transformers, with a live Gradio demo on HuggingFace Spaces.
 authors:
-  - given-names: Shahnawaz
+  - given-names: Muhammad Shahnawaz
     family-names: Khan
     alias: ShahnawazKakarh
+    email: shahnawaz.jrw@gmail.com
+    orcid: "https://orcid.org/0009-0007-4055-6563"
     website: "https://www.skakarh.com"
 repository-code: "https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning"
 url: "https://www.skakarh.com"
@@ -18,12 +22,18 @@ keywords:
   - speech emotion recognition
   - transfer learning
   - multimodal learning
+  - cross-attention fusion
   - wav2vec2
   - wavlm
   - roberta
-  - cross-attention
-  - natural language processing
+  - cross-lingual transfer
+  - low-resource languages
+  - urdu
+  - hindi
+  - punjabi
+  - self-supervised learning
   - pytorch lightning
+  - huggingface
 license: MIT
-version: 0.1.0
-date-released: "2026-06-04"
+version: 0.2.0
+date-released: "2026-06-10"
