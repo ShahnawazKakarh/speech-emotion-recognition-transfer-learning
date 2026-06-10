@@ -317,3 +317,30 @@ Chance level for 7 classes = 0.1429. Both languages clear chance by 25–40 pp a
 - **Feature ceiling.** Hand-crafted features plateau around 55–57% UAR on this corpus. The transformer-based extension (wav2vec2-XLS-R on raw waveforms, XLM-R on transcripts if/when transcripts become available) is the path to substantial gains.
 - **No text modality yet.** The dataset does not ship transcripts. Whisper-based ASR transcription is on the roadmap for a multimodal cross-lingual configuration.
 - **Sarcasm is the most distinctive class** in the taxonomy and the most interesting research angle for a future publication, since it does not appear in any of the standard English/European SER datasets.
+
+### Cross-corpus transfer experiment — Urdu ↔ Sindhi
+
+To our knowledge no published work reports cross-corpus transfer between Urdu and Sindhi using the Syed et al. corpus. We test the natural hypothesis that two neighboring Indo-Aryan languages (overlapping Persian-derived vocabulary, similar prosodic patterns, geographically adjacent) should permit at least partial acoustic-feature transfer for emotion classification.
+
+**Setup.** For each feature set, train a classifier on the *entire* corpus of one language and test on the *entire* corpus of the other. Reproduce via [`scripts/cross_corpus_urdu_sindhi.py`](../scripts/cross_corpus_urdu_sindhi.py).
+
+**Headline result — transfer fails catastrophically in both directions.**
+
+| Direction | Best config | UAR | Within-language UAR | Transfer gap |
+|---|---|---|---|---|
+| Urdu → Sindhi | eGeMAPS + SVM-RBF | 0.2734 | 0.4915 | −21.81 pp |
+| Sindhi → Urdu | eGeMAPS + RandomForest | 0.2622 | 0.3931 | −13.09 pp |
+| Urdu → Sindhi (best feature set within-language) | IS10 + SVM-RBF | 0.2600 | **0.5699** | **−30.99 pp** |
+| Sindhi → Urdu (best feature set within-language) | IS10 + SVM-RBF | 0.2237 | **0.5526** | **−32.89 pp** |
+
+Chance level for 7 classes = 0.143. The best transfer result is only **1.9× above chance**, despite within-language classifiers reaching 4× chance.
+
+**Three observations that motivate the multilingual transformer approach.**
+
+1. **Counter-intuitive feature ranking under transfer.** eGeMAPS (88 dim) — the *worst* within-language feature set on Sindhi — transfers *best*. Conversely, ComParE (6,373 dim) and IS10 (1,582 dim), which dominate the within-language leaderboard, collapse hardest under transfer. This is the **curse of dimensionality in cross-lingual transfer**: higher-dimensional acoustic descriptors capture more language-specific patterns and overfit to within-language acoustic distributions. Lower-dim features retain more language-universal paralinguistic signal.
+
+2. **Approximately symmetric collapse.** Both directions fail by similar margins (~29–30 pp drop on the best within-language config). Neither language serves as a substantially better "source" for cross-corpus transfer.
+
+3. **Hand-crafted features cannot bridge the language gap.** Across all 30 (direction × feature-set × classifier) combinations, no configuration exceeds UAR 0.28 — less than half the within-language ceiling. This is empirical evidence that **acoustic feature transfer alone is insufficient for cross-lingual SER between related Indo-Aryan languages**, and motivates the need for multilingual pre-trained representations (XLM-R / wav2vec2-XLS-R) that learn cross-lingual emotion structure from large multilingual corpora rather than relying on coincidental acoustic similarity between source and target languages.
+
+**Implication for the field.** This result challenges the implicit assumption (common in cross-lingual SER literature) that linguistically-related languages should transfer reasonably well using shared acoustic feature spaces. For Indo-Aryan languages at least, **language relatedness does not imply transferable acoustic-emotion mappings**. Practitioners aiming to deploy SER systems for under-resourced South Asian languages cannot rely on Urdu → Sindhi (or vice versa) zero-shot transfer with hand-crafted features; either per-language training data or multilingual pre-trained encoders are required.

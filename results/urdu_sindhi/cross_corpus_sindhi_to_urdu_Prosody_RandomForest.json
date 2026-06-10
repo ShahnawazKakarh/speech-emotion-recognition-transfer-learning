@@ -1,0 +1,22 @@
+{
+  "train_language": "sindhi",
+  "test_language": "urdu",
+  "features": "Prosody",
+  "model": "RandomForest",
+  "n_train": 701,
+  "n_test": 734,
+  "accuracy": 0.20572207084468666,
+  "wf1": 0.20435580286103336,
+  "uar": 0.2089448052110458,
+  "per_class_f1": {
+    "Anger": 0.18292682926829268,
+    "Disgust": 0.17894736842105263,
+    "Happiness": 0.21782178217821782,
+    "Neutral": 0.1875,
+    "Sadness": 0.24124513618677043,
+    "Sarcasm": 0.12017167381974249,
+    "Surprise": 0.2956521739130435
+  },
+  "within_language_uar_target": 0.3852,
+  "transfer_gap": 0.17625519478895418
+}

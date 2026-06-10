@@ -1,0 +1,22 @@
+{
+  "train_language": "sindhi",
+  "test_language": "urdu",
+  "features": "ComParE",
+  "model": "MLP",
+  "n_train": 701,
+  "n_test": 734,
+  "accuracy": 0.2329700272479564,
+  "wf1": 0.23502955262728598,
+  "uar": 0.2305969300803231,
+  "per_class_f1": {
+    "Anger": 0.21296296296296297,
+    "Disgust": 0.18181818181818182,
+    "Happiness": 0.14942528735632185,
+    "Neutral": 0.18181818181818182,
+    "Sadness": 0.2564102564102564,
+    "Sarcasm": 0.2100456621004566,
+    "Surprise": 0.41284403669724773
+  },
+  "within_language_uar_target": 0.5248,
+  "transfer_gap": 0.29420306991967693
+}

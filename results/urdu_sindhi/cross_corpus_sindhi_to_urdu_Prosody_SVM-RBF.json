@@ -1,0 +1,22 @@
+{
+  "train_language": "sindhi",
+  "test_language": "urdu",
+  "features": "Prosody",
+  "model": "SVM-RBF",
+  "n_train": 701,
+  "n_test": 734,
+  "accuracy": 0.18528610354223432,
+  "wf1": 0.18514851585264208,
+  "uar": 0.1913412099034333,
+  "per_class_f1": {
+    "Anger": 0.1497326203208556,
+    "Disgust": 0.19130434782608696,
+    "Happiness": 0.20212765957446807,
+    "Neutral": 0.1932367149758454,
+    "Sadness": 0.19607843137254902,
+    "Sarcasm": 0.12037037037037036,
+    "Surprise": 0.24864864864864866
+  },
+  "within_language_uar_target": 0.3852,
+  "transfer_gap": 0.19385879009656667
+}
