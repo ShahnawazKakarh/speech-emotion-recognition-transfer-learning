@@ -18,7 +18,7 @@
 
 > A separate research branch [**`research/cross-lingual`**](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/tree/research/cross-lingual) extends this framework to **Urdu**, **Sindhi**, **Hindi**, and **Punjabi** using multilingual transformer encoders (`xlm-roberta-base` + `wav2vec2-xls-r-300m`) and classical-ML baselines on public Indo-Aryan emotion corpora.
 
-**What's in the branch (not in `main`):**
+**What's in the branch (not in `master`):**
 - Multilingual encoder configs ([`configs/text_only_xlmr_meld.yaml`](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/configs/text_only_xlmr_meld.yaml), `audio_only_xlsr_ravdess_si.yaml`, `multimodal_xlmr_xlsr_meld.yaml`) with Apple Silicon MPS memory tuning
 - Integration of the **Urdu-Sindhi Speech Emotion Corpus** ([Syed et al. 2020](https://zenodo.org/records/3685274)) — 1,435 recordings, 7 emotions including **Sarcasm**
 - Classical-ML baseline trainer ([`scripts/train_urdu_sindhi_classical.py`](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/scripts/train_urdu_sindhi_classical.py)) running 5-fold stratified CV across SVM-RBF / RandomForest / MLP over 5 feature representations
@@ -30,7 +30,7 @@
 | **Sindhi** | **0.5699** | 0.5529 | **+1.70 pp** ✅ |
 | Urdu | 0.5526 | 0.5696 | −1.70 pp |
 
-Full leaderboard, methodology, and roadmap in the [branch's results section](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/results/results.md#cross-lingual--urdu-sindhi-speech-emotion-corpus-syed-et-al-2020). Branch will be merged into `main` once the transformer-based extension is complete.
+Full leaderboard, methodology, and roadmap in the [branch's results section](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/results/results.md#cross-lingual--urdu-sindhi-speech-emotion-corpus-syed-et-al-2020). Branch will be merged into `master` once the transformer-based extension is complete.
 
 To work on this directly:
 ```bash
