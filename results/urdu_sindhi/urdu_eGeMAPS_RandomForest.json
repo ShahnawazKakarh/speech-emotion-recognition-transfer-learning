@@ -1,0 +1,34 @@
+{
+  "language": "urdu",
+  "features": "eGeMAPS",
+  "model": "RandomForest",
+  "n_samples": 734,
+  "n_features": 88,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.37738328207995525,
+  "accuracy_std": 0.019482917160547487,
+  "wf1_mean": 0.3748489716811093,
+  "wf1_std": 0.021328967758779745,
+  "uar_mean": 0.3682793233790292,
+  "uar_std": 0.022740652849572034,
+  "per_class_f1_mean": {
+    "Anger": 0.36478740897345546,
+    "Disgust": 0.3983123637583798,
+    "Happiness": 0.3104596710479064,
+    "Neutral": 0.292906513776079,
+    "Sadness": 0.43139521673892467,
+    "Sarcasm": 0.29476130877883067,
+    "Surprise": 0.48723739216979983
+  },
+  "paper_uar": 0.5696,
+  "delta_vs_paper": -0.2013206766209708
+}

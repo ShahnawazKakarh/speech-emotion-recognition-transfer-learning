@@ -1,0 +1,34 @@
+{
+  "language": "urdu",
+  "features": "IS10",
+  "model": "SVM-RBF",
+  "n_samples": 734,
+  "n_features": 1582,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.5680924424564346,
+  "accuracy_std": 0.01542708596470674,
+  "wf1_mean": 0.5619944279539094,
+  "wf1_std": 0.014884053424643596,
+  "uar_mean": 0.5526470868494406,
+  "uar_std": 0.014423571206897879,
+  "per_class_f1_mean": {
+    "Anger": 0.5755962719582205,
+    "Disgust": 0.5459207357991552,
+    "Happiness": 0.4656193761819896,
+    "Neutral": 0.4740943267259056,
+    "Sadness": 0.6087069061609934,
+    "Sarcasm": 0.616173062416743,
+    "Surprise": 0.5959702877566798
+  },
+  "paper_uar": 0.5696,
+  "delta_vs_paper": -0.016952913150559357
+}

@@ -1,0 +1,34 @@
+{
+  "language": "urdu",
+  "features": "ComParE",
+  "model": "MLP",
+  "n_samples": 734,
+  "n_features": 6373,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.5150218991706272,
+  "accuracy_std": 0.021320574386576502,
+  "wf1_mean": 0.5115473585638484,
+  "wf1_std": 0.016784987114712234,
+  "uar_mean": 0.5064040441778264,
+  "uar_std": 0.019508759253047285,
+  "per_class_f1_mean": {
+    "Anger": 0.5331186333881751,
+    "Disgust": 0.42654385979349635,
+    "Happiness": 0.43790782860550304,
+    "Neutral": 0.45686604471043835,
+    "Sadness": 0.5194123621949709,
+    "Sarcasm": 0.5687385873268226,
+    "Surprise": 0.602949733563994
+  },
+  "paper_uar": 0.5696,
+  "delta_vs_paper": -0.06319595582217363
+}

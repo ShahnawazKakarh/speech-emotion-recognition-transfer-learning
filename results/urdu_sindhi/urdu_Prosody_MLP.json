@@ -1,0 +1,34 @@
+{
+  "language": "urdu",
+  "features": "Prosody",
+  "model": "MLP",
+  "n_samples": 734,
+  "n_features": 35,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.26970459416643366,
+  "accuracy_std": 0.022071693764295065,
+  "wf1_mean": 0.2510203639025482,
+  "wf1_std": 0.028538015970324748,
+  "uar_mean": 0.25194416023118216,
+  "uar_std": 0.021721554109834812,
+  "per_class_f1_mean": {
+    "Anger": 0.33456089193825045,
+    "Disgust": 0.2996020604416406,
+    "Happiness": 0.057179487179487176,
+    "Neutral": 0.07989304812834226,
+    "Sadness": 0.24845319946160282,
+    "Sarcasm": 0.25013304399493663,
+    "Surprise": 0.3828757319424797
+  },
+  "paper_uar": 0.5696,
+  "delta_vs_paper": -0.31765583976881784
+}

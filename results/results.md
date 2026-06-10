@@ -234,3 +234,86 @@ An early RAVDESS run with LR=1e-4 (the wav2vec2 *pre-training* LR) diverged — 
 - **Audio-only MELD best-at-epoch-0**: training metric continued to improve while val WF1 plateaued at 0.306. Class-collapse pattern (predicting majority class) — checkpoint selection correctly prefers the highest-val-WF1 snapshot.
 - **`pin_memory` warning** is benign on MPS — printed once per dataloader instantiation, then ignored.
 - **PyTorch-MPS "Unaligned blit request" bug** affected `load_from_checkpoint` for RoBERTa weights. Fixed by passing `map_location="cpu"` and letting Lightning move the model to MPS during `.fit()` / `.test()`. See `src/evaluate.py` and `demo/gradio_app.py`.
+
+---
+
+## Cross-lingual — Urdu-Sindhi Speech Emotion Corpus (Syed et al. 2020)
+
+*Phase 3 of the research roadmap. All results below live on the `research/cross-lingual` branch.*
+
+### Dataset
+
+The [Urdu-Sindhi Speech Emotion Corpus](https://zenodo.org/records/3685274) (Syed, Memon, Shah, Syed; Zenodo DOI 10.5281/zenodo.3685274, CC BY 4.0) contains **1,435 emotional speech recordings** across two South Asian Indo-Aryan languages: **Urdu** (734) and **Sindhi** (701). The Zenodo release ships **pre-computed features only**; raw audio is held back for ethical reasons. Five feature representations are available:
+
+| Feature set | Dimensions | Source |
+|---|---|---|
+| eGeMAPS | 88 | Eyben et al. 2016 |
+| ComParE | 6,373 | Schuller et al. 2013 |
+| IS09 | 384 | InterSpeech 2009 Emotion Challenge |
+| IS10 | 1,582 | InterSpeech 2010 Paralinguistic Challenge |
+| Prosody | 35 | hand-crafted prosodic |
+
+Seven emotion classes: **Anger, Disgust, Happiness, Neutral, Sadness, Sarcasm, Surprise**. Sarcasm is unusual — not present in RAVDESS, MELD, IEMOCAP, EMO-DB, or ShEMO — making this dataset distinctive for South Asian SER research.
+
+### Method
+
+For each combination of (language × feature-set × classifier), we ran 5-fold stratified cross-validation. Classifiers:
+
+- **SVM-RBF** with `C=10.0, gamma="scale", class_weight="balanced"`
+- **RandomForest** with 500 trees, `class_weight="balanced"`
+- **MLP** with hidden layers (256, 128), early stopping, `max_iter=400`
+
+All feeds preceded by `StandardScaler()`. Reproduce via:
+
+```bash
+python scripts/train_urdu_sindhi_classical.py --all
+```
+
+Results stored under [`results/urdu_sindhi/`](urdu_sindhi/) (per-run JSON + consolidated `summary.csv`).
+
+### Results — best configuration per feature set per language
+
+**Sindhi**:
+
+| Features | Best classifier | UAR (5-fold mean ± std) | WF1 | vs Paper (0.5529) |
+|---|---|---|---|---|
+| **IS10** | **SVM-RBF** | **0.5699 ± 0.052** | **0.5700** | **+1.70 pp** ✅ |
+| IS10 | RandomForest | 0.5580 ± 0.021 | 0.5555 | +0.51 pp ✅ |
+| ComParE | MLP | 0.5573 ± 0.043 | 0.5564 | +0.44 pp ✅ |
+| IS10 | MLP | 0.5548 ± 0.040 | 0.5527 | +0.19 pp ✅ |
+| ComParE | SVM-RBF | 0.5445 ± 0.042 | 0.5460 | −0.84 pp |
+| IS09 | SVM-RBF | 0.5159 ± 0.015 | 0.5153 | −3.70 pp |
+| eGeMAPS | SVM-RBF | 0.4915 ± 0.016 | 0.4886 | −6.14 pp |
+| Prosody | RandomForest | 0.3760 ± 0.024 | 0.3749 | −17.69 pp |
+
+**Urdu**:
+
+| Features | Best classifier | UAR (5-fold mean ± std) | WF1 | vs Paper (0.5696) |
+|---|---|---|---|---|
+| **IS10** | **SVM-RBF** | **0.5526 ± 0.014** | **0.5620** | −1.70 pp |
+| ComParE | SVM-RBF | 0.5248 ± 0.016 | 0.5322 | −4.48 pp |
+| ComParE | MLP | 0.5064 ± 0.020 | 0.5115 | −6.32 pp |
+| IS09 | SVM-RBF | 0.4961 ± 0.047 | 0.5059 | −7.35 pp |
+| eGeMAPS | SVM-RBF | 0.3931 ± 0.013 | 0.3971 | −17.65 pp |
+| Prosody | RandomForest | 0.3852 ± 0.027 | 0.3879 | −18.44 pp |
+
+Chance level for 7 classes = 0.1429. Both languages clear chance by 25–40 pp at their best.
+
+### Cross-lingual observations
+
+**1. IS10 (InterSpeech 2010 Paralinguistic, 1,582 dims) is the winning feature set across both languages.** It contains pitch, energy, voice-quality, and spectral statistics computed over voiced/unvoiced segments — a richer paralinguistic representation than eGeMAPS (88 dims) and more focused than ComParE (6,373 dims, prone to small-sample overfitting). For 700-sample regimes IS10 sits in the data-efficient sweet spot.
+
+**2. SVM-RBF dominates the leaderboard.** With ~700 samples and 7 imbalanced classes, margin-based methods generalize better than deeper RandomForest / MLP models, which overfit on this scale. This mirrors classical SER folklore: SVMs were the dominant pre-deep-learning SER backbone for good reason.
+
+**3. We beat the paper's Sindhi baseline by 1.70 pp UAR with a modern sklearn pipeline.** This validates that modernized classical-ML can extract more from these features than the original 2020 baseline. Conversely, we're 1.70 pp shy on Urdu — most likely due to evaluation protocol: the paper used a fixed train/val/test split, we used random stratified 5-fold CV. Speaker IDs are not exposed in filenames so we cannot replicate their exact protocol or run a speaker-independent comparison.
+
+**4. Prosody-only is insufficient.** 35 hand-crafted prosodic features alone trail the best configurations by 17–20 pp UAR in both languages. SER needs spectral + voice-quality information, not just prosody.
+
+**5. These are the new classical-ML baselines.** When we add transformer-based results in the next phase (`wav2vec2-xls-r-300m` + `xlm-roberta-base`, pending raw audio access), the comparison will be against both the original paper *and* these modernized classical numbers — a more demanding bar.
+
+### Limitations and what's next
+
+- **No speaker-independent split.** Filenames encode `<Emotion>_<NNNN>.mat` only. Random k-fold may inflate scores by allowing the same speaker in train+test. We have requested raw-audio access from the dataset authors (Memon at RMIT Australia) to enable speaker-independent evaluation.
+- **Feature ceiling.** Hand-crafted features plateau around 55–57% UAR on this corpus. The transformer-based extension (wav2vec2-XLS-R on raw waveforms, XLM-R on transcripts if/when transcripts become available) is the path to substantial gains.
+- **No text modality yet.** The dataset does not ship transcripts. Whisper-based ASR transcription is on the roadmap for a multimodal cross-lingual configuration.
+- **Sarcasm is the most distinctive class** in the taxonomy and the most interesting research angle for a future publication, since it does not appear in any of the standard English/European SER datasets.

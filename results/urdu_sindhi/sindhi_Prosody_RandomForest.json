@@ -1,0 +1,34 @@
+{
+  "language": "sindhi",
+  "features": "Prosody",
+  "model": "RandomForest",
+  "n_samples": 701,
+  "n_features": 35,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.37516717325227966,
+  "accuracy_std": 0.02437902195735648,
+  "wf1_mean": 0.3749182069989295,
+  "wf1_std": 0.02479774578297303,
+  "uar_mean": 0.375999133444377,
+  "uar_std": 0.023627420198644646,
+  "per_class_f1_mean": {
+    "Anger": 0.44784452204360675,
+    "Disgust": 0.34779106029106027,
+    "Happiness": 0.28752463377168336,
+    "Neutral": 0.42594667838570277,
+    "Sadness": 0.32823813179177297,
+    "Sarcasm": 0.34125352907961604,
+    "Surprise": 0.4497176045105711
+  },
+  "paper_uar": 0.5529,
+  "delta_vs_paper": -0.17690086655562293
+}
