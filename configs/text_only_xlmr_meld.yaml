@@ -1,0 +1,46 @@
+defaults: [base]
+
+# Multilingual text-only baseline on MELD.
+# Drops in xlm-roberta-base (100 languages, 278M params) in place of roberta-base.
+# Purpose: verify XLM-R works in the pipeline, compare English performance
+# against roberta-base (text_only_meld.yaml WF1 = 0.609).
+#
+# Memory tuning history:
+#   v1: bs=16, freeze=0  -> OOM at epoch 0, batch 23/625 (Adam optimizer step
+#                          ran out when MPS allocated hit 19.6/20.1 GB)
+#   v2: bs=8, accum=4, freeze=6  -> current. Effective batch 32, ~50% less
+#                                    activation memory due to layer freezing.
+
+experiment_name: text_only_xlmr_meld
+dataset: meld
+modality: text
+
+model:
+  type: text_only
+  text_encoder: xlm-roberta-base
+  freeze_encoder_layers: 6      # freeze bottom 6 of 12 transformer layers
+  dropout: 0.2
+  num_classes: 7
+
+data:
+  data_dir: data/meld
+  use_context: true
+  context_window: 2
+  batch_size: 8                 # was 16 -> OOM. halve again.
+  max_audio_seconds: 8.0        # ignored for text-only
+  max_text_tokens: 96            # was 128 -> small memory saving
+
+trainer:
+  max_epochs: 8
+  accumulate_grad_batches: 4    # effective batch 32 (was 16x2 = 32)
+
+optimizer:
+  lr: 2.0e-5
+  weight_decay: 0.01
+
+scheduler:
+  name: linear_warmup
+  warmup_ratio: 0.1
+
+loss:
+  use_class_weights: true

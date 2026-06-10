@@ -231,6 +231,14 @@ __marimo__/
 *.swp
 
 # ============================================================
+# Datasets — downloaded locally, never committed (large + license)
+# ============================================================
+/data/ravdess/
+/data/meld/
+/data/iemocap/
+/data/urdu_sindhi/
+
+# ============================================================
 # Private research artifacts — keep local, do not publish
 # ============================================================
 

@@ -50,15 +50,25 @@ class SERModel(nn.Module):
             fusion_type = model_cfg.get("fusion", "concat")
             # Cross-attention needs sequence-level outputs; concat/gated use pooled
             seq_out = fusion_type == "cross_attention"
+            # Freeze settings: support separate text/audio freeze counts, with
+            # fallback to the unimodal `freeze_encoder_layers` for compatibility.
+            freeze_text = model_cfg.get(
+                "freeze_text_layers", model_cfg.get("freeze_encoder_layers", 0)
+            )
+            freeze_audio = model_cfg.get(
+                "freeze_audio_layers", model_cfg.get("freeze_encoder_layers", 0)
+            )
             self.text_encoder = TextEncoder(
                 model_name=model_cfg["text_encoder"],
                 return_sequence=seq_out,
+                freeze_encoder_layers=freeze_text,
                 max_length=data_cfg.get("max_text_tokens", 128),
             )
             self.audio_encoder = AudioEncoder(
                 model_name=model_cfg["audio_encoder"],
                 return_sequence=seq_out,
                 freeze_feature_extractor=model_cfg.get("freeze_feature_extractor", True),
+                freeze_encoder_layers=freeze_audio,
                 sample_rate=data_cfg.get("sample_rate", 16000),
             )
             self.fusion = build_fusion(

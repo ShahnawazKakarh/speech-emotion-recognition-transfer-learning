@@ -5,6 +5,17 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+### Added — Phase 3: Cross-lingual SER scaffold 🌏
+- **Multilingual encoder configs** (`configs/text_only_xlmr_meld.yaml`, `configs/audio_only_xlsr_ravdess_si.yaml`, `configs/multimodal_xlmr_xlsr_meld.yaml`) integrating `xlm-roberta-base` (100 languages) and `facebook/wav2vec2-xls-r-300m` (53 languages) into the existing pipeline.
+- **`src/models/lightning_module.py`** — wired `freeze_text_layers` and `freeze_audio_layers` config keys through to the multimodal branch (previously only the unimodal branches respected freeze settings). Backward-compatible: defaults preserve prior behavior.
+- **XLM-R pipeline validated on MELD** — WF1 0.579 / UF1 0.409 / Acc 0.570 with 6-layer freeze (43M of 278M params trained). Confirms the cross-lingual transformer pipeline works end-to-end on English baseline before applying to Indo-Aryan targets.
+- **Urdu-Sindhi Speech Emotion Corpus integration** (Syed et al. 2020, Zenodo DOI 10.5281/zenodo.3685274) — 1,435 recordings (734 Urdu + 701 Sindhi) across 7 emotions including the unusual **Sarcasm** class. Five hand-crafted feature representations released (eGeMAPS, ComParE, IS09, IS10, Prosody).
+- **`scripts/train_urdu_sindhi_classical.py`** — classical-ML baseline trainer for the Urdu-Sindhi corpus. 5-fold stratified CV across SVM-RBF, RandomForest, and MLP classifiers. Reports UAR, weighted F1, and per-class F1 with comparison against the paper baseline (Urdu UAR 56.96%, Sindhi UAR 55.29%). Runnable per (language, feature-set) combination or all-vs-all.
+- **`scripts/inspect_urdu_sindhi.py`** — standalone .mat-file inspector for understanding the Zenodo feature format before training.
+
+### Fixed — XLM-R memory tuning
+- `configs/text_only_xlmr_meld.yaml`: first attempt with `batch_size=16, freeze=0` OOM'd at epoch 0, batch 23/625 on Apple Silicon MPS (Adam optimizer state pushed allocation to 19.6/20.1 GB). Final config: `batch_size=8, accumulate_grad_batches=4` (effective batch 32 unchanged), `freeze_encoder_layers=6`, `max_text_tokens=96`. Trains to completion with ~12-14 GB peak memory.
+
 ### Added — MELD baselines (text / audio / multimodal) 🎹
 - **Three new MELD-7 baselines** trained and evaluated end-to-end:
   - Text-only RoBERTa-base + 2-utterance context — **WF1 0.609** (top of literature range 0.55–0.62)
