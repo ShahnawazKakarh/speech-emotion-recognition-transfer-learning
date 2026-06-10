@@ -14,6 +14,32 @@
 
 ---
 
+## 🔬 Active research — Cross-lingual SER for South Asian languages
+
+> A separate research branch [**`research/cross-lingual`**](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/tree/research/cross-lingual) extends this framework to **Urdu**, **Sindhi**, **Hindi**, and **Punjabi** using multilingual transformer encoders (`xlm-roberta-base` + `wav2vec2-xls-r-300m`) and classical-ML baselines on public Indo-Aryan emotion corpora.
+
+**What's in the branch (not in `main`):**
+- Multilingual encoder configs ([`configs/text_only_xlmr_meld.yaml`](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/configs/text_only_xlmr_meld.yaml), `audio_only_xlsr_ravdess_si.yaml`, `multimodal_xlmr_xlsr_meld.yaml`) with Apple Silicon MPS memory tuning
+- Integration of the **Urdu-Sindhi Speech Emotion Corpus** ([Syed et al. 2020](https://zenodo.org/records/3685274)) — 1,435 recordings, 7 emotions including **Sarcasm**
+- Classical-ML baseline trainer ([`scripts/train_urdu_sindhi_classical.py`](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/scripts/train_urdu_sindhi_classical.py)) running 5-fold stratified CV across SVM-RBF / RandomForest / MLP over 5 feature representations
+
+**Headline result so far** — SVM-RBF on InterSpeech 2010 paralinguistic features:
+
+| Language | Our UAR | Paper UAR | Δ |
+|---|---|---|---|
+| **Sindhi** | **0.5699** | 0.5529 | **+1.70 pp** ✅ |
+| Urdu | 0.5526 | 0.5696 | −1.70 pp |
+
+Full leaderboard, methodology, and roadmap in the [branch's results section](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/results/results.md#cross-lingual--urdu-sindhi-speech-emotion-corpus-syed-et-al-2020). Branch will be merged into `main` once the transformer-based extension is complete.
+
+To work on this directly:
+```bash
+git fetch origin research/cross-lingual
+git checkout research/cross-lingual
+```
+
+---
+
 ## 🧭 Overview
 
 Speech Emotion Recognition (SER) lives at the intersection of **paralinguistic signal** (pitch, prosody, energy) and **linguistic content** (what was actually said). Labeled emotion data is scarce — IEMOCAP has ~12 hours, RAVDESS has 1,440 clips, MELD has 13K utterances — so **transfer learning from self-supervised speech models and large language models** is the dominant paradigm.
@@ -249,11 +275,14 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 
 ### Phase 3 — Cross-lingual SER for South Asian languages (active research 🔬)
 
-- [ ] Multilingual encoder integration (`xlm-roberta-base` + `wav2vec2-xls-r-300m`)
-- [ ] Literature review of cross-lingual SER + Indo-Aryan emotion datasets
-- [ ] Self-recorded Urdu / Punjabi / Hindi SER corpus (target: 500+ clips, 8–12 native speakers, 6 emotions, multi-annotator labels)
-- [ ] Recording protocol + ethics consent pipeline
-- [ ] Zero-shot, few-shot, and fully-fine-tuned cross-lingual evaluation
+- [x] **Code scaffolding for multilingual encoders** — XLM-R + wav2vec2-XLS-R configs (`configs/text_only_xlmr_meld.yaml`, `configs/audio_only_xlsr_ravdess_si.yaml`, `configs/multimodal_xlmr_xlsr_meld.yaml`); wired through `src/models/lightning_module.py` for per-encoder freeze control on memory-constrained Apple Silicon MPS
+- [x] **XLM-R multilingual pipeline validated on MELD** — WF1 0.579 / UF1 0.409 / Acc 0.570 with 6-layer freeze, confirming the cross-lingual transformer pipeline works end-to-end
+- [x] **Urdu-Sindhi Speech Emotion Corpus integrated** ([Syed et al. 2020, Zenodo](https://zenodo.org/records/3685274)) — 1,435 recordings (734 Urdu + 701 Sindhi), 7 emotions including the unusual **Sarcasm** class, 5 hand-crafted feature representations (eGeMAPS, ComParE, IS09, IS10, Prosody). See [`scripts/train_urdu_sindhi_classical.py`](scripts/train_urdu_sindhi_classical.py) for the classical-ML baseline trainer.
+- [ ] Classical-ML cross-lingual baselines on Urdu-Sindhi corpus (in progress)
+- [ ] Literature review of cross-lingual SER + Indo-Aryan emotion datasets (Latif 2018, Retta 2023, etc.)
+- [ ] Raw audio request to dataset authors (Memon at RMIT Australia) for transformer-based extension
+- [ ] Self-recorded Urdu / Punjabi / Hindi corpus complementing the public datasets
+- [ ] Zero-shot, few-shot, and fully-fine-tuned cross-lingual evaluation with wav2vec2-XLS-R + XLM-R
 - [ ] First publication: target Interspeech / ICASSP workshop 2027 or IEEE TASLP
 
 ### Phase 4 — Deployment + outreach
