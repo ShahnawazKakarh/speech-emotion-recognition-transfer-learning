@@ -24,16 +24,21 @@ keywords:
   - multimodal learning
   - cross-attention fusion
   - wav2vec2
+  - wav2vec2-xls-r
   - wavlm
   - roberta
+  - xlm-roberta
   - cross-lingual transfer
+  - cross-corpus transfer
   - low-resource languages
+  - indo-aryan languages
   - urdu
+  - sindhi
   - hindi
   - punjabi
   - self-supervised learning
   - pytorch lightning
   - huggingface
 license: MIT
-version: 0.2.0
-date-released: "2026-06-10"
+version: 0.3.0
+date-released: "2026-06-11"

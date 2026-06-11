@@ -21,8 +21,11 @@ This is the published RAVDESS-SER convention. **These are the numbers we report.
 | Approach | Encoder | WF1 | UF1 | Accuracy | Config | Checkpoint |
 |---|---|---|---|---|---|---|
 | **Multimodal (cross-attn)** | RoBERTa + wav2vec2 | **0.728** | **0.731** | **0.729** | [`multimodal_ravdess_si.yaml`](../configs/multimodal_ravdess_si.yaml) | `best-08-0.7703.ckpt` |
+| **Audio-only (multilingual)** | **wav2vec2-XLS-R-300M** | **0.773** | **0.765** | **0.779** | [`audio_only_xlsr_ravdess_si.yaml`](../configs/audio_only_xlsr_ravdess_si.yaml) | `best-16-0.7848.ckpt` |
 | Audio-only | wav2vec2-base | 0.659 | 0.631 | 0.667 | [`audio_only_ravdess_si.yaml`](../configs/audio_only_ravdess_si.yaml) | — |
 | Text-only (ablation) | RoBERTa-base | 0.031 | 0.029 | 0.133 | [`text_only_ravdess_si.yaml`](../configs/text_only_ravdess_si.yaml) | — |
+
+> **Cross-lingual finding**: replacing English-only wav2vec2-base (95M params) with multilingual wav2vec2-XLS-R-300M (315M params) on the same RAVDESS speaker-independent split yields a **+11.4 pp WF1 improvement** (0.659 → 0.773). The multilingual encoder *also* beats the English-only multimodal baseline (+4.5 pp WF1). This validates the choice of XLS-R as the audio backbone for the cross-lingual Indo-Aryan extension: a multilingual encoder is not just a portability trade-off, it's strictly better even on English.
 
 ### RAVDESS — random split (for reference, inflated by speaker leakage)
 

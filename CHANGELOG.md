@@ -5,6 +5,13 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+### Added — Phase 3 cross-corpus + XLS-R findings 🔍
+- **`scripts/cross_corpus_urdu_sindhi.py`** — trains classifiers on the full corpus of one language, tests on the full corpus of the other; covers all 5 feature sets x 3 classifiers x 2 directions = 30 transfer experiments.
+- **Cross-corpus Urdu ↔ Sindhi finding**: catastrophic negative transfer. Best transfer UAR 0.2734 (eGeMAPS + SVM-RBF) vs within-language best 0.5699 — a 30.99 pp drop. Symmetric across directions. Low-dim eGeMAPS transfers best, high-dim ComParE / IS10 transfer worst (curse of dimensionality applied to cross-lingual SER). To our knowledge no published work reports this specific result for Urdu and Sindhi.
+- **XLS-R audio-only validation on RAVDESS-SI**: WF1 0.7727, UF1 0.7647, Acc 0.7792. **+11.4 pp WF1** over the English-only wav2vec2-base baseline (0.659), and +4.5 pp over the English-only multimodal cross-attention baseline (0.728). Multilingual audio encoder is strictly better even on the English target task. Validates XLS-R as the audio backbone for the cross-lingual Indo-Aryan extension.
+- **results/results.md**: cross-corpus section with table, observations, field implications; RAVDESS-SI table updated with XLS-R row plus a cross-lingual-finding callout.
+- **README.md**: Active Research banner updated with cross-corpus + XLS-R headline tables.
+
 ### Added — Phase 3: Cross-lingual SER scaffold 🌏
 - **Multilingual encoder configs** (`configs/text_only_xlmr_meld.yaml`, `configs/audio_only_xlsr_ravdess_si.yaml`, `configs/multimodal_xlmr_xlsr_meld.yaml`) integrating `xlm-roberta-base` (100 languages) and `facebook/wav2vec2-xls-r-300m` (53 languages) into the existing pipeline.
 - **`src/models/lightning_module.py`** — wired `freeze_text_layers` and `freeze_audio_layers` config keys through to the multimodal branch (previously only the unimodal branches respected freeze settings). Backward-compatible: defaults preserve prior behavior.
