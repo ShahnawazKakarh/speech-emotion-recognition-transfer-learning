@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader, Subset
 
 from src.data.base import collate_ser_batch
 from src.data.meld import MELDDataset
+from src.data.punjabi_rasa import PunjabiRASADataset
 from src.data.ravdess import RAVDESSDataset
 
 
@@ -75,6 +76,34 @@ class SERDataModule(L.LightningDataModule):
         elif self.dataset_name == "iemocap":
             raise NotImplementedError(
                 "IEMOCAP requires license access — see src/data/iemocap.py"
+            )
+        elif self.dataset_name == "punjabi_rasa":
+            # RASA ships pre-split train/test. We carve a stratified val split
+            # from train (10%) since the official release has no val partition.
+            common = {
+                "data_dir": self.data_cfg["data_dir"],
+                "sample_rate": sr,
+                "max_audio_seconds": max_sec,
+                "emotions": self.data_cfg.get("emotions"),
+                "return_text": self.data_cfg.get("return_text", False),
+            }
+            full_train = PunjabiRASADataset(split="train", **common)
+            self.test_ds = PunjabiRASADataset(split="test", **common)
+
+            # Stratified 90/10 train/val split using labels
+            labels = np.array([s[1] for s in full_train.samples])
+            indices = np.arange(len(full_train))
+            train_idx, val_idx = train_test_split(
+                indices,
+                test_size=0.1,
+                stratify=labels,
+                random_state=42,
+            )
+            self.train_ds = Subset(full_train, train_idx.tolist())
+            self.val_ds = Subset(full_train, val_idx.tolist())
+            print(
+                f"[punjabi_rasa] train={len(self.train_ds)}  val={len(self.val_ds)}  "
+                f"test={len(self.test_ds)}"
             )
         else:
             raise ValueError(f"Unknown dataset: {self.dataset_name}")
