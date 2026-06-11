@@ -30,7 +30,24 @@
 | **Sindhi** | **0.5699** | 0.5529 | **+1.70 pp** ✅ |
 | Urdu | 0.5526 | 0.5696 | −1.70 pp |
 
-Full leaderboard, methodology, and roadmap in the [branch's results section](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/results/results.md#cross-lingual--urdu-sindhi-speech-emotion-corpus-syed-et-al-2020). Branch will be merged into `master` once the transformer-based extension is complete.
+**Cross-corpus finding** — catastrophic negative transfer between Urdu and Sindhi:
+
+| Direction | Best transfer UAR | Within-language UAR | Gap |
+|---|---|---|---|
+| Urdu → Sindhi | 0.2734 (eGeMAPS, SVM-RBF) | 0.5699 | **−30.99 pp** |
+| Sindhi → Urdu | 0.2622 (eGeMAPS, RF) | 0.5526 | **−32.89 pp** |
+
+Despite being neighboring Indo-Aryan languages, acoustic features do not transfer between them. This motivates the multilingual transformer approach (XLM-R + wav2vec2-XLS-R). To our knowledge this specific cross-corpus result has not been published.
+
+**Multilingual encoder validation** — multilingual transformers beat English-only on English:
+
+| Encoder | Test WF1 on RAVDESS-SI | Notes |
+|---|---|---|
+| **wav2vec2-XLS-R-300M (multilingual)** | **0.773** | +11.4 pp over wav2vec2-base; +4.5 pp over English-only multimodal |
+| wav2vec2-base (English) | 0.659 | Prior baseline |
+| XLM-R-base (multilingual) | 0.579 WF1 on MELD | In target band; validates text-side pipeline |
+
+Full leaderboard, methodology, and roadmap in the [branch's results section](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/results/results.md#cross-lingual--urdu-sindhi-speech-emotion-corpus-syed-et-al-2020).
 
 To work on this directly:
 ```bash
