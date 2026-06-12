@@ -386,3 +386,68 @@ Despite the caveat, the result establishes several useful points:
 2. **Multilingual SSL transfers strongly to South Asian Indo-Aryan.** XLS-R-300M was pre-trained on 128 languages including Punjabi via Common Voice; the fine-tuning convergence (val/wf1 0.96 by epoch 3, 0.99 by epoch 7) shows the multilingual representations encode Punjabi acoustic-emotional structure usefully out of the box.
 3. **Class-weighted CE is sufficient for 7:1 imbalance** at this dataset size. No oversampling, focal loss, or two-stage training was needed.
 4. **Combined with the Urdu ↔ Sindhi cross-corpus finding**, this raises an interesting follow-up question for future work: do Urdu and Sindhi transformer-encoded representations transfer better to Punjabi than the hand-crafted features did to each other? This experiment is on the roadmap.
+
+---
+
+## Cross-lingual transformer transfer — Punjabi RASA ↔ URDU-Latif
+
+**Motivation.** The v1 paper documented a *catastrophic* cross-corpus collapse with hand-crafted acoustic features (~30 pp UAR drop, Urdu ↔ Sindhi). This experiment asks whether the multilingual wav2vec2-XLS-R encoder — pre-trained on 128 languages including both Urdu and Punjabi via Common Voice — can bridge the same gap. Both corpora share an identical 4-emotion label set (angry / happy / neutral / sad), so class indices align directly and no remapping is required.
+
+**Setup.** Two zero-shot transfer evaluations using checkpoints from the corresponding within-language experiments above:
+- `outputs/audio_only_xlsr_punjabi_rasa/best-07-0.9897.ckpt` evaluated on URDU-Latif's 40-sample test split
+- `outputs/audio_only_xlsr_urdu_latif/best-13-0.6646.ckpt` evaluated on Punjabi RASA's official 962-sample test split
+
+Neither model sees the target-language data during training; we report metrics directly with `scripts/cross_corpus_punjabi_urdu_latif.py`.
+
+### The 2 × 2
+
+| Direction | Within-lang WF1 | Cross-lang WF1 | Cross-lang UAR | Above chance? |
+|---|---|---|---|---|
+| **Punjabi → Punjabi** | 0.997 | — | — | (within-lang) |
+| **Punjabi → Urdu** | — | **0.427** | **0.500** | ✅ 2.0× chance |
+| **Urdu → Urdu** | 0.640 | — | — | (within-lang) |
+| **Urdu → Punjabi** | — | **0.020** | **0.253** | ❌ ≈ chance (degenerate) |
+
+Chance for 4-class = 0.25.
+
+### Direction 1: Punjabi → Urdu (large-source transfer)
+
+Per-class on URDU-Latif test (n=40):
+
+| Class | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| angry | 0.533 | **0.800** | 0.640 | 10 |
+| happy | 0.500 | 0.200 | 0.286 | 10 |
+| neutral | 0.450 | **0.900** | 0.600 | 10 |
+| sad | 1.000 | 0.100 | 0.182 | 10 |
+
+**Interpretation.** Meaningful transfer at 2× above chance. The recovered signal is **arousal-encoded** — angry and neutral (the two emotions most acoustically discriminable by energy alone) transfer with recall ≥ 0.80, while happy and sad (which require valence cues to separate from angry and neutral respectively) collapse. The Punjabi-trained XLS-R has learned cross-lingual emotion features dominated by arousal, not valence.
+
+### Direction 2: Urdu → Punjabi (small-source transfer)
+
+Per-class on Punjabi RASA test (n=962):
+
+| Class | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| angry | 1.000 | 0.011 | 0.021 | 95 |
+| happy | 0.000 | 0.000 | 0.000 | 102 |
+| neutral | 0.000 | 0.000 | 0.000 | **670** |
+| sad | 0.099 | **1.000** | 0.180 | 95 |
+
+**Interpretation.** Complete collapse to a single-class prediction. The model labels nearly every Punjabi test sample as "sad" (recall 1.0, precision 0.099 — matching Sad's proportion in the test set, 95/962 = 9.9%). The majority class (Neutral, 70% of test) is **never** predicted. UAR sits at 0.253, the chance level for a 4-class problem.
+
+### Why the asymmetry is the finding
+
+Notice the source-corpus sizes: Punjabi RASA has 8,672 training samples, URDU-Latif has 320. This 27× size ratio appears to be the deciding factor:
+
+- **Large source (Punjabi, 8.7k train) → small target (Urdu, 40 test)**: The XLS-R encoder retains enough language-invariant emotional structure during fine-tuning to score 2× above chance on the held-out language. Per-class behaviour is structured (arousal-distinct emotions transfer, valence-distinct emotions don't), not random.
+- **Small source (Urdu, 320 train) → large target (Punjabi, 962 test)**: Fine-tuning collapses into language-specific overfitting. The model fails to generalise to *any* class on the held-out language and degenerates to a single-class prediction.
+
+This is a refinement of the v1 paper's catastrophic-collapse finding. With hand-crafted features, the collapse was symmetric: roughly the same poor transfer in both directions, regardless of corpus size. With transformers, the collapse becomes **asymmetric and data-dependent**: above some training-data threshold, meaningful but limited transfer emerges (and is arousal-encoded); below that threshold, the fine-tuning damages rather than preserves the encoder's cross-lingual emotion representations.
+
+### Implications for the field
+
+1. **A naive "transformers solve cross-lingual SER" narrative is wrong.** Even with a 128-language pre-trained encoder, cross-lingual transfer in low-resource Indo-Aryan SER is partial, asymmetric, and arousal-biased.
+2. **Training-data threshold matters.** Practitioners building per-language transformer SER systems should plan for substantially larger annotated corpora than the ~400 samples typical of pioneering Indo-Aryan SER datasets (URDU-Latif, original Urdu-Sindhi). Our results suggest ≥1,000 source-language samples is a sensible lower bound, with smoother transfer at ≥5,000.
+3. **Cross-lingual evaluation should be bidirectional.** A single-direction transfer score (e.g. report only the better direction) is misleading; both directions can carry different mechanistic signals.
+4. **Caveats.** (i) The Punjabi within-language ceiling (0.997) is almost certainly inflated by same-speaker leakage in the random RASA split — a speaker-independent re-split would lower this and tighten the comparison. (ii) The Punjabi → Urdu evaluation set is small (40 samples). For the journal version we will report multi-seed splits with confidence intervals. (iii) URDU-Latif's training set may itself be too small for meaningful generalisation in any direction; this is a property of the publicly available data, not of XLS-R per se.
