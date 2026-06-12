@@ -18,6 +18,7 @@ from src.data.datamodule import SERDataModule
 from src.data.meld import MELD_EMOTIONS
 from src.data.punjabi_rasa import PUNJABI_RASA_EMOTIONS
 from src.data.ravdess import RAVDESS_EMOTIONS
+from src.data.urdu_latif import URDU_LATIF_EMOTIONS
 from src.models.lightning_module import SERLightningModule
 from src.utils import seed_everything
 
@@ -54,6 +55,8 @@ def get_label_names(dataset: str) -> list[str]:
         return MELD_EMOTIONS
     if dataset == "punjabi_rasa":
         return list(PUNJABI_RASA_EMOTIONS)
+    if dataset == "urdu_latif":
+        return list(URDU_LATIF_EMOTIONS)
     if dataset == "iemocap":
         from src.data.iemocap import IEMOCAP_EMOTIONS
 

@@ -12,6 +12,7 @@ from src.data.base import collate_ser_batch
 from src.data.meld import MELDDataset
 from src.data.punjabi_rasa import PunjabiRASADataset
 from src.data.ravdess import RAVDESSDataset
+from src.data.urdu_latif import URDULatifDataset
 
 
 class SERDataModule(L.LightningDataModule):
@@ -103,6 +104,26 @@ class SERDataModule(L.LightningDataModule):
             self.val_ds = Subset(full_train, val_idx.tolist())
             print(
                 f"[punjabi_rasa] train={len(self.train_ds)}  val={len(self.val_ds)}  "
+                f"test={len(self.test_ds)}"
+            )
+        elif self.dataset_name == "urdu_latif":
+            # URDU-Dataset (Latif 2018) ships no train/val/test split. We use
+            # the loader's built-in splitting (random 80/10/10 by default, or
+            # show-independent via `split_mode: show_independent` in cfg).
+            common = {
+                "data_dir": self.data_cfg["data_dir"],
+                "sample_rate": sr,
+                "max_audio_seconds": max_sec,
+                "split_mode": self.data_cfg.get("split_mode", "random"),
+                "held_out_show": self.data_cfg.get("held_out_show", "SM4"),
+                "seed": self.data_cfg.get("split_seed", 42),
+            }
+            self.train_ds = URDULatifDataset(split="train", **common)
+            self.val_ds = URDULatifDataset(split="val", **common)
+            self.test_ds = URDULatifDataset(split="test", **common)
+            print(
+                f"[urdu_latif] split_mode={common['split_mode']}  "
+                f"train={len(self.train_ds)}  val={len(self.val_ds)}  "
                 f"test={len(self.test_ds)}"
             )
         else:
