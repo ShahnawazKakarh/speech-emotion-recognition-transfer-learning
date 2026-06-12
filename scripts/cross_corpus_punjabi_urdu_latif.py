@@ -96,20 +96,29 @@ def build_target_loader(target: str, batch_size: int = 4, max_sec: float = 6.0):
 def load_config_for_checkpoint(ckpt_path: Path) -> dict:
     """Find the config used to train a checkpoint.
 
-    Lightning stores hparams inside the .ckpt under "hyper_parameters" -> "cfg".
-    We load that rather than rummaging through the configs/ directory.
+    SERLightningModule calls `self.save_hyperparameters(cfg)`, which
+    flattens the cfg dict's top-level keys into the checkpoint's
+    `hyper_parameters`. We reconstruct the cfg by reading those keys back.
     """
     sd = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     if "hyper_parameters" not in sd:
         raise RuntimeError(
             f"Checkpoint {ckpt_path} has no hyper_parameters block; cannot reconstruct model."
         )
-    hp = sd["hyper_parameters"]
-    if "cfg" not in hp:
+    hp = dict(sd["hyper_parameters"])
+    # If a future save format wraps everything under "cfg", pass it through.
+    if set(hp.keys()) == {"cfg"}:
+        return hp["cfg"]
+    # Otherwise the hyperparameters ARE the cfg dict (Lightning's default behaviour
+    # when you call save_hyperparameters(cfg_dict)).
+    required = {"model", "data", "dataset"}
+    missing = required - hp.keys()
+    if missing:
         raise RuntimeError(
-            f"Checkpoint {ckpt_path} hyper_parameters has no 'cfg' key."
+            f"Checkpoint {ckpt_path} hyper_parameters is missing keys: {missing}. "
+            f"Found: {sorted(hp.keys())}"
         )
-    return hp["cfg"]
+    return hp
 
 
 def evaluate(model: SERLightningModule, loader: DataLoader, device: str):
@@ -179,11 +188,16 @@ def main() -> None:
 
     # Reconstruct the trained model from the source-language ckpt.
     print("[load] reconstructing source-language model...")
+    # The Lightning module's __init__ is `(cfg, label_names=None)`. Because
+    # save_hyperparameters(cfg) was called with `cfg`, load_from_checkpoint
+    # will pass the flattened hparams back as `cfg` -- so we need to pass
+    # cfg explicitly here to make the call site unambiguous.
     model = SERLightningModule.load_from_checkpoint(
         ckpt_path,
         cfg=cfg,
         label_names=CLASS_NAMES,
         map_location=args.device,
+        strict=False,
     )
 
     # Zero-shot evaluation.
