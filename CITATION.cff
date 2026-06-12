@@ -24,16 +24,35 @@ keywords:
   - multimodal learning
   - cross-attention fusion
   - wav2vec2
+  - wav2vec2-xls-r
   - wavlm
   - roberta
+  - xlm-roberta
   - cross-lingual transfer
+  - cross-corpus transfer
   - low-resource languages
+  - indo-aryan languages
   - urdu
+  - sindhi
   - hindi
   - punjabi
   - self-supervised learning
   - pytorch lightning
   - huggingface
 license: MIT
-version: 0.2.0
-date-released: "2026-06-10"
+version: 0.3.1
+date-released: "2026-06-11"
+doi: "10.5281/zenodo.20640736"
+preferred-citation:
+  type: article
+  title: "When Acoustic Features Fail: Catastrophic Negative Transfer in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition"
+  authors:
+    - given-names: Muhammad Shahnawaz
+      family-names: Khan
+      orcid: "https://orcid.org/0009-0007-4055-6563"
+  year: 2026
+  month: 6
+  publisher:
+    name: Zenodo
+  doi: "10.5281/zenodo.20640736"
+  url: "https://doi.org/10.5281/zenodo.20640736"
