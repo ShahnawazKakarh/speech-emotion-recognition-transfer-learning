@@ -3,7 +3,6 @@
 > Comparing **text-only (RoBERTa)**, **audio-only (wav2vec2 / WavLM / HuBERT)**, and **multimodal fusion** transfer learning approaches for Speech Emotion Recognition on **RAVDESS**, **MELD**, and **IEMOCAP**.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20640736.svg)](https://doi.org/10.5281/zenodo.20640736)
-[![Preprints.org](https://img.shields.io/badge/Preprints.org-218084-orange)](https://www.preprints.org/manuscript/218084)
 [![CI](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml)
 [![🤗 Open in Spaces](https://img.shields.io/badge/🤗%20Spaces-Live%20Demo-yellow.svg)](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -21,7 +20,7 @@
 > **When Acoustic Features Fail: Catastrophic Negative Transfer in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition**
 >
 > Muhammad Shahnawaz Khan. *Independent Researcher.* June 2026.
-> Zenodo DOI: [10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736) · Preprints.org ID: [218084](https://www.preprints.org/manuscript/218084)
+> Zenodo DOI: [10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736)
 
 Three publishable findings on speech emotion recognition for South Asian Indo-Aryan languages:
 
