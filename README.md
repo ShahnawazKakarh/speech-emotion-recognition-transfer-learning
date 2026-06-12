@@ -2,6 +2,7 @@
 
 > Comparing **text-only (RoBERTa)**, **audio-only (wav2vec2 / WavLM / HuBERT)**, and **multimodal fusion** transfer learning approaches for Speech Emotion Recognition on **RAVDESS**, **MELD**, and **IEMOCAP**.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20640736.svg)](https://doi.org/10.5281/zenodo.20640736)
 [![CI](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml)
 [![🤗 Open in Spaces](https://img.shields.io/badge/🤗%20Spaces-Live%20Demo-yellow.svg)](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -11,6 +12,33 @@
 [![Gradio](https://img.shields.io/badge/Gradio-Demo-FF7C00.svg)](https://gradio.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+---
+
+## 📄 Published preprint (June 2026)
+
+> **When Acoustic Features Fail: Catastrophic Negative Transfer in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition**
+>
+> Muhammad Shahnawaz Khan. *Independent Researcher.* June 2026.
+> Zenodo DOI: [10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736)
+
+Three publishable findings on speech emotion recognition for South Asian Indo-Aryan languages:
+
+1. **Modernised Sindhi baseline beats published paper by +1.70 pp UAR** (Syed et al. 2020).
+2. **Catastrophic negative transfer (~30 pp UAR drop)** between Urdu and Sindhi despite their linguistic proximity; the within-language feature-set ranking inverts under transfer.
+3. **Multilingual XLS-R encoder beats English-only baseline by +11.4 pp weighted-F1** on English speaker-independent RAVDESS.
+
+```bibtex
+@misc{khan2026crosscorpus,
+  author       = {Khan, Muhammad Shahnawaz},
+  title        = {When Acoustic Features Fail: Catastrophic Negative Transfer
+                  in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition},
+  year         = {2026},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.20640736},
+  url          = {https://doi.org/10.5281/zenodo.20640736}
+}
+```
 
 ---
 
