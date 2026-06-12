@@ -347,3 +347,42 @@ Chance level for 7 classes = 0.143. The best transfer result is only **1.9× abo
 3. **Hand-crafted features cannot bridge the language gap.** Across all 30 (direction × feature-set × classifier) combinations, no configuration exceeds UAR 0.28 — less than half the within-language ceiling. This is empirical evidence that **acoustic feature transfer alone is insufficient for cross-lingual SER between related Indo-Aryan languages**, and motivates the need for multilingual pre-trained representations (XLM-R / wav2vec2-XLS-R) that learn cross-lingual emotion structure from large multilingual corpora rather than relying on coincidental acoustic similarity between source and target languages.
 
 **Implication for the field.** This result challenges the implicit assumption (common in cross-lingual SER literature) that linguistically-related languages should transfer reasonably well using shared acoustic feature spaces. For Indo-Aryan languages at least, **language relatedness does not imply transferable acoustic-emotion mappings**. Practitioners aiming to deploy SER systems for under-resourced South Asian languages cannot rely on Urdu → Sindhi (or vice versa) zero-shot transfer with hand-crafted features; either per-language training data or multilingual pre-trained encoders are required.
+
+---
+
+## Punjabi RASA — first transformer-based SER on Punjabi
+
+**Dataset.** Punjabi Emotional Speech Dataset (RASA), released on Kaggle (Fatima Tu Zahra, 2024) and derived from AI4Bharat's Rasa corpus (IIT Madras). 9,634 raw WAV samples at 48 kHz, 4 emotions (Angry, Happy, Neutral, Sad), CC BY 4.0. Official split: 8,672 train / 962 test, with class distribution train = {angry 861, happy 915, neutral 6,039, sad 857} and test = {angry 95, happy 102, neutral 670, sad 95}. Severe class imbalance (~7:1 Neutral vs. minority classes).
+
+**Model.** wav2vec2-XLS-R-300M (Babu et al. 2021), 10 of 24 transformer layers frozen, dropout 0.2, linear classifier head, class-weighted cross-entropy loss to compensate for the Neutral majority. Trained for 11 epochs with early stopping on `val/wf1`; best checkpoint at epoch 7. Stratified 90/10 train/val split carved from the official train (RASA ships no validation partition).
+
+**Configuration**: [`configs/audio_only_xlsr_punjabi_rasa.yaml`](../configs/audio_only_xlsr_punjabi_rasa.yaml) · batch size 4, accumulate 8 (effective 32), lr 1e-5, max audio 6.0 s @ 16 kHz.
+
+### Headline result
+
+| Metric | Test |
+|---|---|
+| **Weighted F1** | **0.9969** |
+| **Unweighted F1** | **0.9957** |
+| Accuracy | 0.9969 |
+| Best val/wf1 | 0.9897 (epoch 7) |
+
+To our knowledge this is the first transformer-based SER result reported on the RASA Punjabi corpus.
+
+### Critical caveat — these numbers should be treated as an **upper bound**
+
+The Kaggle release of RASA uses a random train/test split and **does not expose speaker identifiers** in filenames (format: `PAN_<gender>_<emotion>_<nnnnn>.wav`). We could not verify that the official test set is speaker-independent from the training set. Same-speaker overlap is the single largest source of metric inflation in SER — a model that memorises speaker timbre alongside emotional cues will score very highly on a non-speaker-independent test set without actually generalising. The 0.9957 UF1 (balanced across all 4 classes) confirms the model is not gaming class imbalance, but does not rule out same-speaker memorisation.
+
+We recommend:
+1. AI4Bharat / RASA authors publish speaker IDs to enable speaker-independent evaluation.
+2. Any practitioner re-running this experiment should treat these scores as the optimistic ceiling and accompany them with a leave-one-speaker-out (LOSO) or held-out-speaker-group evaluation when speaker metadata becomes available.
+3. Subsequent papers reporting Punjabi SER should not benchmark against the random-split scores alone; a speaker-independent comparison is essential.
+
+### Why this still matters for the field
+
+Despite the caveat, the result establishes several useful points:
+
+1. **Transformer feasibility on a previously transformer-less benchmark.** Prior published Punjabi SER work (largely from the Indian Punjab CS community, 2022–2024) used classical ML (SVM, RandomForest, CNNs over MFCCs). This is the first known XLS-R fine-tuning result and demonstrates the modality gap is closable on Punjabi.
+2. **Multilingual SSL transfers strongly to South Asian Indo-Aryan.** XLS-R-300M was pre-trained on 128 languages including Punjabi via Common Voice; the fine-tuning convergence (val/wf1 0.96 by epoch 3, 0.99 by epoch 7) shows the multilingual representations encode Punjabi acoustic-emotional structure usefully out of the box.
+3. **Class-weighted CE is sufficient for 7:1 imbalance** at this dataset size. No oversampling, focal loss, or two-stage training was needed.
+4. **Combined with the Urdu ↔ Sindhi cross-corpus finding**, this raises an interesting follow-up question for future work: do Urdu and Sindhi transformer-encoded representations transfer better to Punjabi than the hand-crafted features did to each other? This experiment is on the roadmap.
