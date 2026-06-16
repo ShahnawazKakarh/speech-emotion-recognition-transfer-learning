@@ -1,0 +1,86 @@
+{
+  "source_dataset": "punjabi_rasa",
+  "target_dataset": "urdu_latif",
+  "is_cross_lingual": true,
+  "source_ckpt": "/Users/shahnawazkhan/speech-emotion-recognition-transfer-learning/outputs/multiseed_cross_lingual/multiseed_pun_s2/best-11-0.9931.ckpt",
+  "seed_tag": "s2",
+  "urdu_held_out_show": "SM4",
+  "n_target_test": 48,
+  "metrics": {
+    "accuracy": 0.625,
+    "weighted_f1": 0.7692307692307693,
+    "unweighted_f1": 0.25641025641025644,
+    "uar_macro_recall": 0.20833333333333334
+  },
+  "per_class": {
+    "angry": {
+      "precision": 1.0,
+      "recall": 0.625,
+      "f1-score": 0.7692307692307693,
+      "support": 48.0
+    },
+    "happy": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "neutral": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sad": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "accuracy": 0.625,
+    "macro avg": {
+      "precision": 0.25,
+      "recall": 0.15625,
+      "f1-score": 0.19230769230769232,
+      "support": 48.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 0.625,
+      "f1-score": 0.7692307692307693,
+      "support": 48.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      30,
+      15,
+      3,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "class_names": [
+    "angry",
+    "happy",
+    "neutral",
+    "sad"
+  ]
+}

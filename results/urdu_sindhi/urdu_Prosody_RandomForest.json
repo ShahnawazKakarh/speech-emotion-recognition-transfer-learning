@@ -1,0 +1,34 @@
+{
+  "language": "urdu",
+  "features": "Prosody",
+  "model": "RandomForest",
+  "n_samples": 734,
+  "n_features": 35,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.3882396794334172,
+  "accuracy_std": 0.025911106276430743,
+  "wf1_mean": 0.38792195932962953,
+  "wf1_std": 0.02754600310793535,
+  "uar_mean": 0.3852480226540377,
+  "uar_std": 0.026844418139167204,
+  "per_class_f1_mean": {
+    "Anger": 0.36397562356859303,
+    "Disgust": 0.42615135815897187,
+    "Happiness": 0.34870692031982353,
+    "Neutral": 0.34474899302485507,
+    "Sadness": 0.43243820316991044,
+    "Sarcasm": 0.3125079396395582,
+    "Surprise": 0.4610588718990526
+  },
+  "paper_uar": 0.5696,
+  "delta_vs_paper": -0.18435197734596231
+}

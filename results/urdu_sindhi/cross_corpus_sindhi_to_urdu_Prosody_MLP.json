@@ -1,0 +1,22 @@
+{
+  "train_language": "sindhi",
+  "test_language": "urdu",
+  "features": "Prosody",
+  "model": "MLP",
+  "n_train": 701,
+  "n_test": 734,
+  "accuracy": 0.19482288828337874,
+  "wf1": 0.1925405364057933,
+  "uar": 0.19655757277157343,
+  "per_class_f1": {
+    "Anger": 0.1694915254237288,
+    "Disgust": 0.14507772020725387,
+    "Happiness": 0.11695906432748537,
+    "Neutral": 0.19895287958115182,
+    "Sadness": 0.25,
+    "Sarcasm": 0.19081272084805653,
+    "Surprise": 0.2634146341463415
+  },
+  "within_language_uar_target": 0.3852,
+  "transfer_gap": 0.18864242722842656
+}

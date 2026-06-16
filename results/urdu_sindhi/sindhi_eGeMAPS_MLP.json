@@ -1,0 +1,34 @@
+{
+  "language": "sindhi",
+  "features": "eGeMAPS",
+  "model": "MLP",
+  "n_samples": 701,
+  "n_features": 88,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.40519756838905774,
+  "accuracy_std": 0.05336631279246298,
+  "wf1_mean": 0.4011459344289765,
+  "wf1_std": 0.053997940606327295,
+  "uar_mean": 0.40267830549458533,
+  "uar_std": 0.05341348946805205,
+  "per_class_f1_mean": {
+    "Anger": 0.435261001273911,
+    "Disgust": 0.37634039644565964,
+    "Happiness": 0.4254257937184766,
+    "Neutral": 0.32877221498357045,
+    "Sadness": 0.38826651761348846,
+    "Sarcasm": 0.40759163758762307,
+    "Surprise": 0.44077785102175343
+  },
+  "paper_uar": 0.5529,
+  "delta_vs_paper": -0.15022169450541462
+}

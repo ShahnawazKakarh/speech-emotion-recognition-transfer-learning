@@ -1,0 +1,22 @@
+{
+  "train_language": "urdu",
+  "test_language": "sindhi",
+  "features": "eGeMAPS",
+  "model": "MLP",
+  "n_train": 734,
+  "n_test": 701,
+  "accuracy": 0.21255349500713266,
+  "wf1": 0.19918473957005034,
+  "uar": 0.21431274275575624,
+  "per_class_f1": {
+    "Anger": 0.20588235294117646,
+    "Disgust": 0.12021857923497267,
+    "Happiness": 0.17486338797814208,
+    "Neutral": 0.10714285714285714,
+    "Sadness": 0.27884615384615385,
+    "Sarcasm": 0.13229571984435798,
+    "Surprise": 0.3843137254901961
+  },
+  "within_language_uar_target": 0.4915,
+  "transfer_gap": 0.27718725724424376
+}

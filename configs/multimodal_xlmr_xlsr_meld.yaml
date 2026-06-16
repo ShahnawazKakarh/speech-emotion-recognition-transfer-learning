@@ -1,0 +1,53 @@
+defaults: [base]
+
+# Multilingual multimodal model on MELD — the eventual production setup
+# for cross-lingual SER experiments. Combines XLM-R (text) + XLS-R (audio)
+# with cross-attention fusion.
+#
+# Purpose: establish English baselines with multilingual encoders. Once we
+# verify performance is comparable to monolingual (multimodal_meld.yaml WF1
+# = 0.590), we can fine-tune on Urdu/Punjabi/Hindi data.
+#
+# Memory: ~600M params total. Heavy memory pressure on Apple Silicon MPS.
+# We freeze aggressively (10 of 24 audio layers, 6 of 12 text layers) and
+# use very small batches with high accumulation.
+
+experiment_name: multimodal_xlmr_xlsr_meld
+dataset: meld
+modality: multimodal
+
+model:
+  type: multimodal
+  text_encoder: xlm-roberta-base
+  audio_encoder: facebook/wav2vec2-xls-r-300m
+  fusion: cross_attention
+  fusion_hidden: 512
+  num_attention_heads: 8
+  freeze_feature_extractor: true
+  freeze_encoder_layers: 10     # audio: freeze 10 of 24
+  freeze_text_layers: 6         # text: freeze 6 of 12 (XLM-R is heavier than RoBERTa)
+  dropout: 0.2
+  num_classes: 7
+
+data:
+  data_dir: data/meld
+  use_context: true
+  context_window: 2
+  batch_size: 1                 # very small due to ~600M params on MPS
+  max_audio_seconds: 4.0        # reduce vs 5.0 in multimodal_meld.yaml
+  max_text_tokens: 96
+
+trainer:
+  max_epochs: 10
+  accumulate_grad_batches: 16   # effective batch 16, same as multimodal_meld.yaml
+
+optimizer:
+  lr: 5.0e-5
+  weight_decay: 0.01
+
+scheduler:
+  name: linear_warmup
+  warmup_ratio: 0.1
+
+loss:
+  use_class_weights: true

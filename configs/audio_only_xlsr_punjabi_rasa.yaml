@@ -1,0 +1,47 @@
+defaults: [base]
+
+# Audio-only XLS-R-300M fine-tuned on Punjabi RASA emotional speech (4-class).
+# This is the first transformer-based SER model trained on Punjabi to our
+# knowledge. The dataset is severely imbalanced (Neutral ~7x other classes),
+# so we use class-weighted cross-entropy + balanced sampling.
+#
+# Dataset:
+#   train: 8,672 samples (angry 861, happy 915, sad 857, neutral 6039)
+#   test:  962  samples (angry 95,  happy 102, sad 95,  neutral 670)
+#   format: 48 kHz mono WAV, 3-15 s per clip
+#
+# Memory note:
+#   wav2vec2-XLS-R-300M is ~315M params. We use the same memory tuning as the
+#   RAVDESS-SI run (batch_size=4, accumulate_grad=8, 10/24 audio layers frozen).
+
+experiment_name: audio_only_xlsr_punjabi_rasa
+dataset: punjabi_rasa
+modality: audio
+
+model:
+  type: audio_only
+  audio_encoder: facebook/wav2vec2-xls-r-300m
+  freeze_encoder_layers: 10      # freeze bottom 10 of 24 transformer layers
+  dropout: 0.2
+  num_classes: 4                  # angry, happy, neutral, sad
+
+data:
+  data_dir: data/punjabi_rasa
+  batch_size: 4
+  max_audio_seconds: 6.0          # most clips are 3-15s; 6s covers >70%
+  sample_rate: 16000              # resample from 48 kHz source
+
+trainer:
+  max_epochs: 12
+  accumulate_grad_batches: 8     # effective batch 32
+
+optimizer:
+  lr: 1.0e-5
+  weight_decay: 0.01
+
+scheduler:
+  name: linear_warmup
+  warmup_ratio: 0.1
+
+loss:
+  use_class_weights: true         # critical: Neutral is ~7x other classes

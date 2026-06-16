@@ -1,0 +1,52 @@
+defaults: [base]
+
+# Audio-only XLS-R-300M fine-tuned on URDU-Dataset (Latif 2018).
+# 400 utterances, 4 emotions (Angry/Happy/Neutral/Sad), 38 speakers from
+# 4 Urdu TV talk shows. Tiny dataset by transformer standards -- heavy
+# regularization (dropout, frozen lower layers) is critical to avoid
+# instant overfitting.
+#
+# Splits:
+#   random:             stratified 80/10/10 (320/40/40); may inflate metrics
+#                       since same speaker can appear in train and test.
+#   show_independent:   train on shows {SM1,SM2,SM3}, test on SM4; this is
+#                       a stricter generalization test and the recommended
+#                       protocol when reporting comparable numbers.
+#
+# Switch via `data.split_mode: show_independent`.
+
+experiment_name: audio_only_xlsr_urdu_latif
+dataset: urdu_latif
+modality: audio
+
+model:
+  type: audio_only
+  audio_encoder: facebook/wav2vec2-xls-r-300m
+  freeze_encoder_layers: 16      # freeze 16 of 24 layers -- aggressive
+                                 # because the dataset is tiny (320 train)
+  dropout: 0.3                    # strong regularization
+  num_classes: 4
+
+data:
+  data_dir: data/urdu_latif
+  batch_size: 4
+  max_audio_seconds: 6.0
+  sample_rate: 16000
+  split_mode: random              # change to show_independent for paper
+  split_seed: 42
+
+trainer:
+  max_epochs: 20
+  accumulate_grad_batches: 4     # effective batch 16
+  gradient_clip_val: 1.0
+
+optimizer:
+  lr: 1.0e-5
+  weight_decay: 0.05              # heavier than RASA config for small data
+
+scheduler:
+  name: linear_warmup
+  warmup_ratio: 0.1
+
+loss:
+  use_class_weights: true         # 4-class imbalance check (Sad ~88 vs others ~100)

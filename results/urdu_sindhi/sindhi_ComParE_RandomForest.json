@@ -1,0 +1,34 @@
+{
+  "language": "sindhi",
+  "features": "ComParE",
+  "model": "RandomForest",
+  "n_samples": 701,
+  "n_features": 6373,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.5435157041540021,
+  "accuracy_std": 0.04598669125945202,
+  "wf1_mean": 0.5430048149370155,
+  "wf1_std": 0.04546824721484271,
+  "uar_mean": 0.5427519123591467,
+  "uar_std": 0.04440483854299959,
+  "per_class_f1_mean": {
+    "Anger": 0.6035427886248173,
+    "Disgust": 0.5667857142857142,
+    "Happiness": 0.48910554561717356,
+    "Neutral": 0.5137112010796222,
+    "Sadness": 0.5315086999297526,
+    "Sarcasm": 0.5342626403980938,
+    "Surprise": 0.5634586466165413
+  },
+  "paper_uar": 0.5529,
+  "delta_vs_paper": -0.010148087640853287
+}

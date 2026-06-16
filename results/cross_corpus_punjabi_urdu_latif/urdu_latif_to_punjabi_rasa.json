@@ -1,0 +1,83 @@
+{
+  "source_dataset": "urdu_latif",
+  "target_dataset": "punjabi_rasa",
+  "source_ckpt": "outputs/audio_only_xlsr_urdu_latif/best-13-0.6646.ckpt",
+  "n_target_test": 962,
+  "metrics": {
+    "accuracy": 0.0997920997920998,
+    "weighted_f1": 0.0198421740187143,
+    "unweighted_f1": 0.05023203001579779,
+    "uar_macro_recall": 0.25263157894736843
+  },
+  "per_class": {
+    "angry": {
+      "precision": 1.0,
+      "recall": 0.010526315789473684,
+      "f1-score": 0.020833333333333332,
+      "support": 95.0
+    },
+    "happy": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 102.0
+    },
+    "neutral": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 670.0
+    },
+    "sad": {
+      "precision": 0.09895833333333333,
+      "recall": 1.0,
+      "f1-score": 0.18009478672985782,
+      "support": 95.0
+    },
+    "accuracy": 0.0997920997920998,
+    "macro avg": {
+      "precision": 0.2747395833333333,
+      "recall": 0.25263157894736843,
+      "f1-score": 0.05023203001579779,
+      "support": 962.0
+    },
+    "weighted avg": {
+      "precision": 0.10852499133749134,
+      "recall": 0.0997920997920998,
+      "f1-score": 0.0198421740187143,
+      "support": 962.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      1,
+      0,
+      0,
+      94
+    ],
+    [
+      0,
+      0,
+      0,
+      102
+    ],
+    [
+      0,
+      1,
+      0,
+      669
+    ],
+    [
+      0,
+      0,
+      0,
+      95
+    ]
+  ],
+  "class_names": [
+    "angry",
+    "happy",
+    "neutral",
+    "sad"
+  ]
+}

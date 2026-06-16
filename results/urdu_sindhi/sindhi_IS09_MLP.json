@@ -1,0 +1,34 @@
+{
+  "language": "sindhi",
+  "features": "IS09",
+  "model": "MLP",
+  "n_samples": 701,
+  "n_features": 384,
+  "n_classes": 7,
+  "classes": [
+    "Anger",
+    "Disgust",
+    "Happiness",
+    "Neutral",
+    "Sadness",
+    "Sarcasm",
+    "Surprise"
+  ],
+  "accuracy_mean": 0.4649949341438703,
+  "accuracy_std": 0.0623650962189847,
+  "wf1_mean": 0.46031031633481356,
+  "wf1_std": 0.06386743509864427,
+  "uar_mean": 0.46535186462075295,
+  "uar_std": 0.06235427578694066,
+  "per_class_f1_mean": {
+    "Anger": 0.5240611299558668,
+    "Disgust": 0.5507319151643969,
+    "Happiness": 0.5309861788267104,
+    "Neutral": 0.3752215526409075,
+    "Sadness": 0.36025486558593517,
+    "Sarcasm": 0.4489422492401216,
+    "Surprise": 0.43812539086929336
+  },
+  "paper_uar": 0.5529,
+  "delta_vs_paper": -0.087548135379247
+}

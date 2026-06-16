@@ -1,0 +1,22 @@
+{
+  "train_language": "sindhi",
+  "test_language": "urdu",
+  "features": "eGeMAPS",
+  "model": "SVM-RBF",
+  "n_train": 701,
+  "n_test": 734,
+  "accuracy": 0.2506811989100817,
+  "wf1": 0.25556521111740765,
+  "uar": 0.25030316286894844,
+  "per_class_f1": {
+    "Anger": 0.21551724137931033,
+    "Disgust": 0.20276497695852536,
+    "Happiness": 0.21348314606741572,
+    "Neutral": 0.18719211822660098,
+    "Sadness": 0.37333333333333335,
+    "Sarcasm": 0.19444444444444445,
+    "Surprise": 0.36548223350253806
+  },
+  "within_language_uar_target": 0.3931,
+  "transfer_gap": 0.14279683713105157
+}

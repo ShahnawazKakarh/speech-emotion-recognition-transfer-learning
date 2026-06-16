@@ -40,12 +40,12 @@ keywords:
   - pytorch lightning
   - huggingface
 license: MIT
-version: 0.3.1
-date-released: "2026-06-11"
+version: 2.0.0
+date-released: "2026-06-16"
 doi: "10.5281/zenodo.20640736"
 preferred-citation:
   type: article
-  title: "When Acoustic Features Fail: Catastrophic Negative Transfer in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition"
+  title: "Cross-Lingual Speech Emotion Recognition for Indo-Aryan Languages: Acoustic Feature Collapse, Within-Language Show Overfitting, and Asymmetric Transformer Transfer"
   authors:
     - given-names: Muhammad Shahnawaz
       family-names: Khan
