@@ -98,7 +98,7 @@ class SERDataModule(L.LightningDataModule):
                 indices,
                 test_size=0.1,
                 stratify=labels,
-                random_state=42,
+                random_state=self.data_cfg.get("split_seed", 42),
             )
             self.train_ds = Subset(full_train, train_idx.tolist())
             self.val_ds = Subset(full_train, val_idx.tolist())

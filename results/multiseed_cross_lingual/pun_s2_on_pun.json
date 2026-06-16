@@ -1,0 +1,86 @@
+{
+  "source_dataset": "punjabi_rasa",
+  "target_dataset": "punjabi_rasa",
+  "is_cross_lingual": false,
+  "source_ckpt": "/Users/shahnawazkhan/speech-emotion-recognition-transfer-learning/outputs/multiseed_cross_lingual/multiseed_pun_s2/best-11-0.9931.ckpt",
+  "seed_tag": "s2",
+  "urdu_held_out_show": null,
+  "n_target_test": 962,
+  "metrics": {
+    "accuracy": 0.9875259875259875,
+    "weighted_f1": 0.9875613821240972,
+    "unweighted_f1": 0.9812912604853696,
+    "uar_macro_recall": 0.9804356699474762
+  },
+  "per_class": {
+    "angry": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 95.0
+    },
+    "happy": {
+      "precision": 1.0,
+      "recall": 0.9607843137254902,
+      "f1-score": 0.98,
+      "support": 102.0
+    },
+    "neutral": {
+      "precision": 0.9910581222056631,
+      "recall": 0.9925373134328358,
+      "f1-score": 0.9917971662938105,
+      "support": 670.0
+    },
+    "sad": {
+      "precision": 0.9387755102040817,
+      "recall": 0.968421052631579,
+      "f1-score": 0.9533678756476683,
+      "support": 95.0
+    },
+    "accuracy": 0.9875259875259875,
+    "macro avg": {
+      "precision": 0.9824584081024362,
+      "recall": 0.9804356699474762,
+      "f1-score": 0.9812912604853696,
+      "support": 962.0
+    },
+    "weighted avg": {
+      "precision": 0.9877262113796071,
+      "recall": 0.9875259875259875,
+      "f1-score": 0.9875613821240972,
+      "support": 962.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      95,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      98,
+      3,
+      1
+    ],
+    [
+      0,
+      0,
+      665,
+      5
+    ],
+    [
+      0,
+      0,
+      3,
+      92
+    ]
+  ],
+  "class_names": [
+    "angry",
+    "happy",
+    "neutral",
+    "sad"
+  ]
+}

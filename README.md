@@ -47,6 +47,31 @@ An expanded v2 paper, currently in preparation for a peer-reviewed venue (target
 
 ---
 
+## 📦 Versioned releases & how to cite
+
+This project is published as versioned Zenodo releases, each with its own DOI.
+From v2.0.0 onwards the deposits are auto-minted by Zenodo on every GitHub
+release; the **Concept DOI** resolves to the latest version, and each
+**version DOI** pins to an exact artifact. The v2 paper additionally
+progresses toward a peer-reviewed venue submission.
+
+| Version | Scope | Status |
+|---|---|---|
+| **v0.3.1** | v1 short paper — 3 findings on classical Urdu-Sindhi cross-corpus + RAVDESS-SI XLS-R | 🟢 Released — [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736) |
+| **v2.0.0** | v2 expanded paper — 4 findings, adds multi-seed transformer cross-lingual transfer Punjabi ↔ Urdu with bootstrap CIs | 🟡 In preparation — Concept DOI + version DOI assigned on release |
+| **v2.1.0** | + Speaker-disjoint RASA re-evaluation (pending AI4Bharat metadata or manual annotation) | 🔵 Planned |
+| **v3.0.0** | + Multimodal Punjabi (Whisper + XLM-R cross-attention) + Hindi (IITKGP-SEHSC) + Sindhi raw audio (MUET) | 🔵 Target: ACM TALLIP / IEEE TASLP |
+
+Step-by-step Zenodo release & ORCID flow: [`docs/zenodo_release.md`](docs/zenodo_release.md).
+Machine-readable citation: [`CITATION.cff`](CITATION.cff).
+
+If you use this benchmark in your work, please cite the BibTeX in the
+[Published preprint](#-published-preprint-june-2026) section above, or pull
+the equivalent from `CITATION.cff` via GitHub's "Cite this repository" sidebar.
+The Concept DOI will be added here once the v2.0.0 release auto-deposits.
+
+---
+
 ## 🔬 Active research — Cross-lingual SER for South Asian languages
 
 > A separate research branch [**`research/cross-lingual`**](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/tree/research/cross-lingual) extends this framework to **Urdu**, **Sindhi**, **Punjabi**, and **Hindi** using multilingual transformer encoders (`xlm-roberta-base` + `wav2vec2-xls-r-300m`) and classical-ML baselines on public Indo-Aryan emotion corpora. The Phase 3 work is substantially complete; an expanded v2 paper is in preparation.
