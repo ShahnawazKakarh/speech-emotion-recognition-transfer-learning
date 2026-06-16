@@ -42,7 +42,7 @@ keywords:
 license: MIT
 version: 2.0.0
 date-released: "2026-06-16"
-doi: "10.5281/zenodo.20640736"
+doi: "10.5281/zenodo.20709692"
 preferred-citation:
   type: article
   title: "Cross-Lingual Speech Emotion Recognition for Indo-Aryan Languages: Acoustic Feature Collapse, Within-Language Show Overfitting, and Asymmetric Transformer Transfer"
@@ -54,5 +54,5 @@ preferred-citation:
   month: 6
   publisher:
     name: Zenodo
-  doi: "10.5281/zenodo.20640736"
-  url: "https://doi.org/10.5281/zenodo.20640736"
+  doi: "10.5281/zenodo.20709693"
+  url: "https://doi.org/10.5281/zenodo.20709693"

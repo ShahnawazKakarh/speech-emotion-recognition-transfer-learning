@@ -2,7 +2,7 @@
 
 > Comparing **text-only (RoBERTa)**, **audio-only (wav2vec2 / WavLM / HuBERT)**, and **multimodal fusion** transfer learning approaches for Speech Emotion Recognition on **RAVDESS**, **MELD**, and **IEMOCAP**.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20640736.svg)](https://doi.org/10.5281/zenodo.20640736)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20709692.svg)](https://doi.org/10.5281/zenodo.20709692)
 [![CI](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/actions/workflows/ci.yml)
 [![🤗 Open in Spaces](https://img.shields.io/badge/🤗%20Spaces-Live%20Demo-yellow.svg)](https://huggingface.co/spaces/Shahnawazkakarh/speech-emotion-recognition)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -17,31 +17,37 @@
 
 ## 📄 Published preprint (June 2026)
 
-> **When Acoustic Features Fail: Catastrophic Negative Transfer in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition**
+> **Cross-Lingual Speech Emotion Recognition for Indo-Aryan Languages: Acoustic Feature Collapse, Within-Language Show Overfitting, and Asymmetric Transformer Transfer**
 >
 > Muhammad Shahnawaz Khan. *Independent Researcher.* June 2026.
-> Zenodo DOI: [10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736)
+> Zenodo Concept DOI: [10.5281/zenodo.20709692](https://doi.org/10.5281/zenodo.20709692) — resolves to latest version.
+> v2.0.0 version DOI: [10.5281/zenodo.20709693](https://doi.org/10.5281/zenodo.20709693).
 
-The published v1 short paper presents three findings on speech emotion recognition for South Asian Indo-Aryan languages:
+The v2 preprint reports four findings on speech emotion recognition for South Asian Indo-Aryan languages — Urdu, Sindhi, and Punjabi — that together characterise persistent failure modes across both classical and transformer-based methodologies:
 
-1. **Modernised Sindhi baseline beats published paper by +1.70 pp UAR** (Syed et al. 2020).
+1. **Modernised Sindhi baseline beats published paper by +1.70 pp UAR** (SVM-RBF on IS10 features, UAR 0.5699).
 2. **Catastrophic negative transfer (~30 pp UAR drop)** between Urdu and Sindhi despite their linguistic proximity; the within-language feature-set ranking inverts under transfer.
 3. **Multilingual XLS-R encoder beats English-only baseline by +11.4 pp weighted-F1** on English speaker-independent RAVDESS.
+4. **First multi-seed transformer-based cross-lingual SER study between Punjabi RASA and URDU-Latif**, identifying three structural failure modes with bootstrap confidence intervals over three seeds:
+   - *Punjabi within-language is leakage-saturated:* WF1 0.994 [0.988, 0.998] only under the publisher-fixed split that admits speaker overlap.
+   - *Urdu within-language under show-independent evaluation collapses below the chance baseline:* pooled UAR 0.103 [0.075, 0.131] (n=88); the corpus is too small (~290 utterances) to train a transformer that generalises across recording domains.
+   - *Urdu → Punjabi zero-shot transfer degenerates to single-class prediction at chance level:* pooled UAR 0.248 [0.225, 0.272] (n=2,886), robust across all three seeds. Only Pun → Urdu clears chance (pooled UAR 0.467, n=88), but with per-show variance too large for strong quantitative claims.
 
-An expanded v2 paper, currently in preparation for a peer-reviewed venue (target: ACM TALLIP / Interspeech 2027 / IEEE TASLP), extends this with two further findings (see [Active research](#-active-research--cross-lingual-ser-for-south-asian-languages) below):
+Findings 1–3 establish the methodological hierarchy classical-ML → monolingual transformer → multilingual transformer. Finding 4 then shows that even the strongest of these (multilingual XLS-R) fails on the public Indo-Aryan corpora, with failure modes attributable to the corpora rather than the architecture (the same architecture reaches UAR 0.773 on English RAVDESS-SI).
 
-4. **First transformer-based SER on Punjabi**: wav2vec2-XLS-R-300M on Punjabi RASA (AI4Bharat) reaches test WF1 0.997 — to our knowledge the first reported transformer SER result on the RASA Punjabi corpus.
-5. **Asymmetric cross-lingual transformer transfer**: zero-shot Punjabi → Urdu reaches 2× above chance (WF1 0.43, UAR 0.50) with arousal-encoded structure; Urdu → Punjabi collapses to chance (UAR 0.25, degenerate single-class prediction). The asymmetry tracks source-corpus size (8.7k vs 320 samples), refining the catastrophic-collapse claim of finding #2.
+The v1 short paper (3 findings on classical Urdu-Sindhi; [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736), June 11 2026) is superseded by the v2 above but remains citable as the v0.3.1 release of this repository.
 
 ```bibtex
-@misc{khan2026crosscorpus,
+@misc{khan2026crossLingualIndoAryan,
   author       = {Khan, Muhammad Shahnawaz},
-  title        = {When Acoustic Features Fail: Catastrophic Negative Transfer
-                  in Cross-Corpus Urdu-Sindhi Speech Emotion Recognition},
+  title        = {Cross-Lingual Speech Emotion Recognition for Indo-Aryan Languages:
+                  Acoustic Feature Collapse, Within-Language Show Overfitting,
+                  and Asymmetric Transformer Transfer},
   year         = {2026},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.20640736},
-  url          = {https://doi.org/10.5281/zenodo.20640736}
+  version      = {2.0.0},
+  doi          = {10.5281/zenodo.20709692},
+  url          = {https://doi.org/10.5281/zenodo.20709692}
 }
 ```
 
@@ -57,18 +63,15 @@ progresses toward a peer-reviewed venue submission.
 
 | Version | Scope | Status |
 |---|---|---|
-| **v0.3.1** | v1 short paper — 3 findings on classical Urdu-Sindhi cross-corpus + RAVDESS-SI XLS-R | 🟢 Released — [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736) |
-| **v2.0.0** | v2 expanded paper — 4 findings, adds multi-seed transformer cross-lingual transfer Punjabi ↔ Urdu with bootstrap CIs | 🟡 In preparation — Concept DOI + version DOI assigned on release |
+| **v0.3.1** | v1 short paper — 3 findings on classical Urdu-Sindhi cross-corpus + RAVDESS-SI XLS-R (superseded by v2.0.0 but still citable) | 🟢 Released — [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736) |
+| **v2.0.0** | v2 expanded paper — 4 findings, adds first multi-seed transformer cross-lingual SER audit between Punjabi RASA and URDU-Latif with bootstrap CIs; identifies three structural failure modes in low-resource Indo-Aryan SER | 🟢 Released — Concept DOI [10.5281/zenodo.20709692](https://doi.org/10.5281/zenodo.20709692) · v2.0.0 DOI [10.5281/zenodo.20709693](https://doi.org/10.5281/zenodo.20709693) |
 | **v2.1.0** | + Speaker-disjoint RASA re-evaluation (pending AI4Bharat metadata or manual annotation) | 🔵 Planned |
 | **v3.0.0** | + Multimodal Punjabi (Whisper + XLM-R cross-attention) + Hindi (IITKGP-SEHSC) + Sindhi raw audio (MUET) | 🔵 Target: ACM TALLIP / IEEE TASLP |
 
 Step-by-step Zenodo release & ORCID flow: [`docs/zenodo_release.md`](docs/zenodo_release.md).
 Machine-readable citation: [`CITATION.cff`](CITATION.cff).
 
-If you use this benchmark in your work, please cite the BibTeX in the
-[Published preprint](#-published-preprint-june-2026) section above, or pull
-the equivalent from `CITATION.cff` via GitHub's "Cite this repository" sidebar.
-The Concept DOI will be added here once the v2.0.0 release auto-deposits.
+If you use this benchmark, cite the v2 BibTeX in the [Published preprint](#-published-preprint-june-2026) section above (which uses the Concept DOI and therefore always resolves to the latest version), or pull the equivalent from `CITATION.cff` via GitHub's "Cite this repository" sidebar.
 
 ---
 
@@ -404,7 +407,8 @@ A few findings highlighted for reviewers / fellow researchers, all from the [`re
 - [x] **Punjabi RASA (AI4Bharat / Kaggle) integrated** — [`src/data/punjabi_rasa.py`](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/src/data/punjabi_rasa.py), 9,634 samples, severe 7:1 class imbalance handled with class-weighted CE
 - [x] **First transformer-based SER on Punjabi RASA** — wav2vec2-XLS-R-300M reaches WF1 0.997 / UF1 0.996 on the official test split (with same-speaker-leak caveat documented)
 - [x] **Cross-lingual transformer transfer experiments** — [`scripts/cross_corpus_punjabi_urdu_latif.py`](https://github.com/ShahnawazKakarh/speech-emotion-recognition-transfer-learning/blob/research/cross-lingual/scripts/cross_corpus_punjabi_urdu_latif.py); bidirectional zero-shot evaluation reveals asymmetric data-gated transfer (Punjabi→Urdu at 2× chance, Urdu→Punjabi at chance)
-- [x] **First publication out** — [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736), 11 June 2026 (v1: 3 findings on classical Urdu-Sindhi)
+- [x] **First publication out** — v1 paper: [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736), 11 June 2026 (3 findings on classical Urdu-Sindhi)
+- [x] **v2 expanded paper out** — v2 paper with multi-seed transformer cross-lingual audit: [Zenodo Concept DOI 10.5281/zenodo.20709692](https://doi.org/10.5281/zenodo.20709692) (v2.0.0 DOI [10.5281/zenodo.20709693](https://doi.org/10.5281/zenodo.20709693)), 16 June 2026
 - [ ] Raw audio request to Sajjad Ali Memon at MUET Pakistan (sent; awaiting reply) — for transformer-based Urdu-Sindhi experiments using the original 1,435-sample raw audio
 - [ ] Raw audio request to Prof. K. Sreenivasa Rao at IIT Kharagpur (sent; awaiting reply) — for IITKGP-SEHSC Hindi corpus integration
 - [ ] Speaker-independent re-evaluation of Punjabi RASA (pending AI4Bharat speaker-ID release or manual annotation)
