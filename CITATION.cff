@@ -40,8 +40,8 @@ keywords:
   - pytorch lightning
   - huggingface
 license: MIT
-version: 2.0.0
-date-released: "2026-06-16"
+version: 2.1.0
+date-released: "2026-06-26"
 doi: "10.5281/zenodo.20709692"
 preferred-citation:
   type: article

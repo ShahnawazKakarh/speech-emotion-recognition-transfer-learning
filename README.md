@@ -63,10 +63,11 @@ progresses toward a peer-reviewed venue submission.
 
 | Version | Scope | Status |
 |---|---|---|
-| **v0.3.1** | v1 short paper — 3 findings on classical Urdu-Sindhi cross-corpus + RAVDESS-SI XLS-R (superseded by v2.0.0 but still citable) | 🟢 Released — [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736) |
+| **v0.3.1** | v1 short paper — 3 findings on classical Urdu-Sindhi cross-corpus + RAVDESS-SI XLS-R (superseded by v2.x but still citable) | 🟢 Released — [Zenodo DOI 10.5281/zenodo.20640736](https://doi.org/10.5281/zenodo.20640736) |
 | **v2.0.0** | v2 expanded paper — 4 findings, adds first multi-seed transformer cross-lingual SER audit between Punjabi RASA and URDU-Latif with bootstrap CIs; identifies three structural failure modes in low-resource Indo-Aryan SER | 🟢 Released — Concept DOI [10.5281/zenodo.20709692](https://doi.org/10.5281/zenodo.20709692) · v2.0.0 DOI [10.5281/zenodo.20709693](https://doi.org/10.5281/zenodo.20709693) |
-| **v2.1.0** | + Speaker-disjoint RASA re-evaluation (pending AI4Bharat metadata or manual annotation) | 🔵 Planned |
-| **v3.0.0** | + Multimodal Punjabi (Whisper + XLM-R cross-attention) + Hindi (IITKGP-SEHSC) + Sindhi raw audio (MUET) | 🔵 Target: ACM TALLIP / IEEE TASLP |
+| **v2.1.0** | v2 paper visual upgrade — cover restyled, 3 new figures (per-seed UAR forest plot, pooled confusion matrices, per-class recall heatmap), Appendix A DOIs filled in. Same methodology and findings as v2.0.0. | 🟢 Released — Concept DOI [10.5281/zenodo.20709692](https://doi.org/10.5281/zenodo.20709692) (resolves latest) |
+| **v2.2.0** | + Speaker-disjoint RASA re-evaluation (pending AI4Bharat metadata or manual annotation) | 🔵 Planned |
+| **v3.0.0** | + Multimodal Punjabi (Whisper + XLM-R cross-attention) + Hindi (IITKGP-SEHSC) + Sindhi raw audio (MUET) + IEMOCAP-English reference + IndoAryan-SER-Bench v0.1 | 🔵 Target: ACM TALLIP / IEEE TASLP |
 
 Step-by-step Zenodo release & ORCID flow: [`docs/zenodo_release.md`](docs/zenodo_release.md).
 Machine-readable citation: [`CITATION.cff`](CITATION.cff).
